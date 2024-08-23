@@ -1,41 +1,65 @@
 <template>
-  <footer class="bg-white  shadow dark:bg-gray-900">
-    <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
-      <div class="sm:flex sm:items-center sm:justify-between">
-        <nuxt-link to="/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
-          <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Movie</span>
-        </nuxt-link>
-        <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
+  <footer class="border-gray-200 bg-gray-50 dark:text-white dark:bg-gray-800 dark:border-gray-700  py-6">
+    <div class="w-full max-w-screen-xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row md:justify-between items-center">
+        <!-- Brand Section -->
+        <div class="flex items-center mb-4 md:mb-0">
+          <nuxt-link to="/" class="flex items-center">
+            <span class="text-3xl font-bold whitespace-nowrap">MovieVerse</span>
+          </nuxt-link>
+        </div>
+
+        <!-- Navigation Links -->
+        <ul class="flex flex-wrap items-center text-sm font-medium space-x-4">
           <li>
-            <nuxt-link to="#" class="hover:underline me-4 md:me-6">About</nuxt-link>
+            <nuxt-link to="#" class="hover:underline">About Us</nuxt-link>
           </li>
           <li>
-            <nuxt-link to="#" class="hover:underline me-4 md:me-6">Privacy Policy</nuxt-link>
+            <nuxt-link to="#" class="hover:underline">Privacy Policy</nuxt-link>
           </li>
           <li>
-            <nuxt-link to="#" class="hover:underline me-4 md:me-6">Licensing</nuxt-link>
+            <nuxt-link to="#" class="hover:underline">Terms & Conditions</nuxt-link>
           </li>
           <li>
-            <nuxt-link to="#" class="hover:underline">Contact</nuxt-link>
+            <nuxt-link to="#" class="hover:underline">Contact Us</nuxt-link>
           </li>
         </ul>
+
+        <!-- Social Media Links -->
+        <div class="flex space-x-4 mt-4 md:mt-0">
+          <a href="#" aria-label="Facebook" class="hover:text-gray-400">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" aria-label="Twitter" class="hover:text-gray-400">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" aria-label="Instagram" class="hover:text-gray-400">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#" aria-label="YouTube" class="hover:text-gray-400">
+            <i class="fab fa-youtube"></i>
+          </a>
+        </div>
       </div>
-      <hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
-      <span class="block text-sm text-gray-500 sm:text-center dark:text-gray-400">
-        © 2024 <nuxt-link to="/" class="hover:underline">Movie</nuxt-link>. All Rights Reserved.
-      </span>
+
+      <!-- Footer Bottom Section -->
+      <div class="text-center mt-6 text-sm">
+        <span>© {{ currentYear }} <nuxt-link to="/" class="hover:underline">AMC Theatres</nuxt-link>. All Rights Reserved.</span>
+      </div>
     </div>
   </footer>
 </template>
 
 <script setup>
-// No script is needed for this footer component
+import { ref } from 'vue';
+
+// Get the current year
+const currentYear = ref(new Date().getFullYear());
 </script>
 
 <style scoped>
-footer {
-  width: 100%;
-  position: relative;
-  bottom: 0;
+
+footer .fab {
+  font-size: 1.25rem; /* Adjust size of social media icons */
 }
 </style>

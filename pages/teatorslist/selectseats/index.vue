@@ -47,7 +47,16 @@
     <!-- Proceed Button -->
     <div class="text-center mt-12">
       <nuxt-link
-        to="selectseats/checkout"
+        :to="{
+          path: '/teatorslist/selectseats/checkout',
+          query: {
+            title: movieTitle,
+            theater: selectedTheater,
+            time: selectedTime,
+            selectedSeats: JSON.stringify(selectedSeats),
+            ticketPrice: ticketPrice
+          }
+        }"
         class="px-8 py-4 bg-red-600 text-white text-lg rounded-full hover:bg-red-700 transition duration-300"
       >
         Proceed to Checkout
@@ -57,11 +66,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-const movieTitle = ref("Deadpool & Wolverine");
-const selectedTheater = ref("AMC Newport Centre 11");
-const selectedTime = ref("6:00 PM");
+const route = useRoute();
+
+const movieTitle = ref(route.query.title || "Unknown Movie");
+const selectedTheater = ref(route.query.theater || "Unknown Theater");
+const selectedTime = ref(route.query.time || "Unknown Time");
+const ticketPrice = 15.0;
 
 const seats = ref([
   { id: 1, label: "A1", occupied: false, selected: false },
@@ -81,13 +94,11 @@ const seats = ref([
   { id: 15, label: "C5", occupied: false, selected: false },
 ]);
 
+const selectedSeats = computed(() => seats.value.filter(seat => seat.selected));
+
 const selectSeat = (seat) => {
   if (!seat.occupied) {
     seat.selected = !seat.selected;
   }
 };
 </script>
-
-<style scoped>
-/* Additional styles to mimic the AMC style can go here */
-</style>

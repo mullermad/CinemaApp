@@ -10,20 +10,27 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@apollo/client": "^3.11.4",
     "@heroicons/vue": "^1.0.6",
     "@vee-validate/i18n": "^4.13.2",
     "@vee-validate/rules": "^4.13.2",
+    "@vue/apollo-composable": "^4.2.0",
     "axios": "^1.7.4",
+    "date-fns": "^3.6.0",
     "flowbite-vue": "^0.1.5",
+    "graphql": "^16.9.0",
+    "graphql-tag": "^2.12.6",
     "js-cookie": "^3.0.5",
     "nuxt": "^3.12.1",
     "require": "^2.4.20",
+    "swiper": "^11.1.9",
     "vee-validate": "^4.13.2",
     "vue": "^3.4.27",
     "vue-router": "^4.3.3",
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@nuxtjs/apollo": "^5.0.0-alpha.14",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4"

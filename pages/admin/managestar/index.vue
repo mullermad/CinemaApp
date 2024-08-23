@@ -3,25 +3,25 @@
     <!-- Main Content Area -->
     <main class="flex-1 p-4 lg:ml-64">
       <div class="p-4 border-gray-200 rounded-lg dark:border-gray-700">
-        <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Manage Directors</h1>
+        <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Manage Stars</h1>
         
         <!-- Add New Director Button -->
         <button
           @click="toggleForm"
           class="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block"
         >
-          {{ showForm ? 'Cancel' : 'Add New Director' }}
+          {{ showForm ? 'Cancel' : 'Add New Star' }}
         </button>
 
         <!-- Add New Director Form -->
         <div v-if="showForm" class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-          <h2 class="dark:text-white text-xl font-semibold mb-4">Add New Director</h2>
-          <form @submit.prevent="logDirector">
+          <h2 class="dark:text-white text-xl font-semibold mb-4">Add New Star</h2>
+          <form @submit.prevent="handleSubmit">
             <div class="mb-4">
               <label for="directorName" class="block text-gray-700 dark:text-gray-300 mb-2">Name</label>
               <input
                 id="directorName"
-                v-model="newDirectorName"
+                v-model="newStarName"
                 type="text"
                 class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg"
                 required
@@ -32,7 +32,7 @@
               type="submit"
               class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
-              Add Director
+              Add Star
             </button>
           </form>
         </div>
@@ -46,12 +46,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="director in paginatedDirectors" :key="director.id">
-                <td class="p-3 text-gray-800 dark:text-white">{{ director.name }}</td>
+              <tr v-for="star in paginateStars" :key="star.id">
+                <td class="p-3 text-gray-800 dark:text-white">{{ star.name }}</td>
                 <td class="p-3 text-right">
                   <button
                     class="text-red-600 hover:underline text-sm"
-                    @click="showDeleteModal(director.id)"
+                    @click="showDeleteModal(star.id)"
                   >
                     Delete
                   </button>
@@ -65,8 +65,8 @@
         <nav class="flex items-center justify-between pt-4" aria-label="Table navigation">
           <span class="flex items-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
             Showing {{ indexOfFirstItem + 1 }} -
-            {{ Math.min(indexOfLastItem, directors.length) }} of
-            {{ directors.length }}
+            {{ Math.min(indexOfLastItem, stars.length) }} of
+            {{ stars.length }}
           </span>
           <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
             <li>
@@ -134,7 +134,7 @@
                 />
               </svg>
               <h2 class="text-lg font-semibold mb-2">Confirm Deletion</h2>
-              <p>Are you sure you want to delete this director?</p>
+              <p>Are you sure you want to delete this star?</p>
               <div class="flex justify-center mt-4">
                 <button
                   @click="confirmDelete"
@@ -163,40 +163,114 @@ definePageMeta({
   layout: 'admin'
 })
 import { ref, computed } from 'vue';
+// Define the GraphQL queries and mutations
+const GET_STARS_QUERY = gql`
+  query GetStars {
+     star {
+    star_id
+    name
+  }
+  }
+`;
 
+
+const INSERT_STAR_MUTATION = gql`
+  mutation InsertStar($object: star_insert_input!) {
+    insert_star_one(object: $object) {
+      star_id
+    }
+  }
+`;
+
+
+const DELETE_STAR_MUTATION = gql`
+  mutation DeleteStar($star_id: uuid!) {
+    delete_star_by_pk(star_id: $star_id) {
+      star_id
+      name
+    }
+  }
+`;
 // States
 const showForm = ref(false);
-const newDirectorName = ref('');
+const newStarName = ref('');
 const showModal = ref(false);
-const directors = ref([
-   { id: 1, name: 'Steven Spielberg' },
-  { id: 2, name: 'Christopher Nolan' },
-  { id: 3, name: 'Martin Scorsese' },
-  { id: 4, name: 'Quentin Tarantino' },
-  { id: 5, name: 'James Cameron' },
-]);
+const starToDelete = ref(null); // For storing the director to be deleted
 
+
+
+const { result, loading, error } = useQuery(GET_STARS_QUERY);
+
+const stars = ref([]);
+
+// Watch for changes in the query result and update local state
+watch(
+  () => result.value?.star,
+  (newStars) => {
+    if (newStars) {
+      stars.value = newStars.map(star => ({
+        id: star.star_id,
+        name: star.name
+      }));
+    }
+  }
+);
 
 // Toggle form visibility
 const toggleForm = () => {
   showForm.value = !showForm.value;
 };
 
-// Log director name
-const logDirector = () => {
-  console.log('New Director:', newDirectorName.value);
-  newDirectorName.value = ''; // Clear input field
+
+const handleSubmit = async () => {
+  const variables = {
+    object: {
+      name: newStarName.value,
+    },
+  };
+
+  const { mutate } = useMutation(INSERT_STAR_MUTATION);
+
+  try {
+    const { data } = await mutate(variables);
+    const starId = data.insert_star_one.star_id;
+console.log("hhhhhhhhhhhh",data);
+    stars.value.push({ id: starId, name: newStarName.value });
+    newStarName.value = ''; // Clear input field
+
+  } catch (err) {
+    console.error('Mutation error:', err);
+  }
 };
 
-// Paginate directors
+// Handle director deletion
+const handleDelete = async () => {
+  const { mutate } = useMutation(DELETE_STAR_MUTATION);
+
+  try {
+    if (starToDelete.value) {
+     const  variables={ star_id: starToDelete.value }
+      const { data } = await mutate(variables);
+      const deletedStarId = data.delete_star_by_pk.star_id;
+console.log('deleteeeeeee',data);
+      // Update the local state
+      stars.value = stars.value.filter(star => star.id !== deletedStarId);
+      showModal.value = false; // Close the modal
+    }
+  } catch (err) {
+    console.error('Mutation error:', err);
+  }
+};
+
+// Paginate stars
 const itemsPerPage = 5;
 const currentPage = ref(1);
 const indexOfLastItem = computed(() => currentPage.value * itemsPerPage);
 const indexOfFirstItem = computed(() => indexOfLastItem.value - itemsPerPage);
-const paginatedDirectors = computed(() =>
-  directors.value.slice(indexOfFirstItem.value, indexOfLastItem.value)
+const paginateStars = computed(() =>
+  stars.value.slice(indexOfFirstItem.value, indexOfLastItem.value)
 );
-const totalPages = computed(() => Math.ceil(directors.value.length / itemsPerPage));
+const totalPages = computed(() => Math.ceil(stars.value.length / itemsPerPage));
 
 // Handle pagination
 const paginate = (pageNumber) => {
@@ -205,15 +279,19 @@ const paginate = (pageNumber) => {
   }
 };
 
+
 // Show delete modal
 const showDeleteModal = (id) => {
-  // Set the director to be deleted
+  starToDelete.value = id;
   showModal.value = true;
 };
 
+
 // Confirm deletion
 const confirmDelete = () => {
-  // Implement the deletion logic here
-  showModal.value = false;
+  
+  handleDelete();
+
+
 };
 </script>

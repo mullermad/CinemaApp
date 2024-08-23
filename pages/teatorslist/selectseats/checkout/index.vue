@@ -13,9 +13,9 @@
       <!-- Movie Details -->
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h3 class="text-2xl font-semibold">Deadpool & Wolverine</h3>
-          <p class="text-sm text-gray-400">AMC Newport Centre 11</p>
-          <p class="text-sm text-gray-400">Showtime: 6:00 PM</p>
+          <h3 class="text-2xl font-semibold">{{ movieTitle }}</h3>
+          <p class="text-sm text-gray-400">{{ selectedTheater }}</p>
+          <p class="text-sm text-gray-400">Showtime: {{ selectedTime }}</p>
         </div>
         <div class="text-right">
           <p class="text-sm text-gray-400">Tickets: {{ selectedSeats.length }}</p>
@@ -97,19 +97,13 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 
-const selectedSeats = ref([
-  { id: 1, label: "A1" },
-  { id: 2, label: "A2" },
-  { id: 4, label: "B3" },
-]);
+const route = useRoute();
 
-const ticketPrice = ref(15.0); // Example ticket price per seat
+const movieTitle = ref(route.query.title || "Unknown Movie");
+const selectedTheater = ref(route.query.theater || "Unknown Theater");
+const selectedTime = ref(route.query.time || "Unknown Time");
+const selectedSeats = ref(JSON.parse(route.query.selectedSeats || "[]"));
+const ticketPrice = ref(parseFloat(route.query.ticketPrice || 0));
 </script>
-
-<style scoped>
-/* Additional styles to enhance the AMC-like appearance */
-input[type="radio"] {
-  accent-color: #dc2626; /* Red color for radio buttons */
-}
-</style>

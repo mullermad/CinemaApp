@@ -4,7 +4,7 @@
     <div class="relative max-w-screen-xl mx-auto px-4 py-8 flex flex-col md:flex-row items-start">
       <!-- Movie Poster -->
       <div class="flex-none w-full md:w-1/3 lg:w-1/4 mb-8 md:mb-0">
-        <img :src="getImageUrl(movie.poster)" alt="Movie Poster" class="w-full h-auto object-cover rounded-lg shadow-lg" />
+        <img src="@/assets/img/poster1.jpeg" alt="Movie Poster" class="w-full h-auto object-cover rounded-lg shadow-lg" />
       </div>
 
       <!-- Movie Details -->
@@ -17,6 +17,13 @@
           <p class="text-sm font-medium mb-1 text-black dark:text-white">RELEASE DATE: <span class="font-normal">{{ movie.releaseDate }}</span></p>
           <p class="text-sm font-medium text-black dark:text-white">RATING: <span class="font-normal">{{ movie.rating }}</span></p>
         </div>
+                  <div class="mb-8">
+          <h2 class="text-2xl text-black dark:text-white font-semibold mb-4">Cast</h2>
+          <div v-for="(star, index) in movie.stars" :key="index">
+            <p class="text-md text-2xl font-medium mb-1  text-black dark:text-white">{{ star }}  <span class="ml-12">actor</span></p>
+          </div>
+        </div>
+
 
         <!-- Action Buttons -->
         <div class="flex space-x-4 mt-6">
