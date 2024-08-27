@@ -1,56 +1,56 @@
 <template>
-  <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="flex h-screen bg-gray-900">
   
     
 
     <!-- Content Area -->
     <div class="flex-1 ml-64 p-4">
-    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+    <div class="p-4 border-2  border-dashed rounded-lg border-gray-700">
       <!-- Admin Dashboard Overview -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
         <!-- Overview Card 1: Total Movies -->
-        <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg shadow-md">
           <div class="flex items-center">
-            <svg class="w-6 h-6 text-blue-500 dark:text-blue-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 text-blue-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8"/>
             </svg>
-            <span class="ml-4 text-lg font-medium text-gray-900 dark:text-gray-100">Total Movies</span>
+            <span class="ml-4 text-lg font-medium text-gray-100">Total Movies</span>
           </div>
-          <p class="text-2xl font-bold text-gray-700 dark:text-gray-300">{{ totalMovies }}</p>
+          <p class="text-2xl font-bold text-gray-300">{{ totalMovies }}</p>
         </div>
 
         <!-- Overview Card 2: Total Directors -->
-        <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg shadow-md">
           <div class="flex items-center">
-            <svg class="w-6 h-6 text-green-500 dark:text-green-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 text-green-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12l7 7 7-7"/>
             </svg>
-            <span class="ml-4 text-lg font-medium text-gray-900 dark:text-gray-100">Total Directors</span>
+            <span class="ml-4 text-lg font-medium text-gray-100">Total Directors</span>
           </div>
-          <p class="text-2xl font-bold text-gray-700 dark:text-gray-300">{{ totalDirectors }}</p>
+          <p class="text-2xl font-bold text-gray-300">{{ totalDirectors }}</p>
         </div>
 
         <!-- Overview Card 3: Total Stars -->
-        <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg shadow-md">
           <div class="flex items-center">
-            <svg class="w-6 h-6 text-red-500 dark:text-red-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 text-red-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            <span class="ml-4 text-lg font-medium text-gray-900 dark:text-gray-100">Total Stars</span>
+            <span class="ml-4 text-lg font-medium text-gray-100">Total Stars</span>
           </div>
-          <p class="text-2xl font-bold text-gray-700 dark:text-gray-300">{{ totalStars }}</p>
+          <p class="text-2xl font-bold text-gray-300">{{ totalStars }}</p>
         </div>
       </div>
 
       <!-- Recent Activities -->
        <div>
-    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Activities</h2>
+    <h2 class="text-xl font-semibold text-gray-100 mb-4">Recent Activities</h2>
     <ul class="space-y-4">
-      <li v-for="activity in recentActivities" :key="activity.title" class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-        <p class="font-medium text-gray-900 dark:text-gray-100">
+      <li v-for="activity in recentActivities" :key="activity.title" class="p-4 bg-gray-800 rounded-lg shadow-md">
+        <p class="font-medium text-gray-100">
           {{ activity.title }}
         </p>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ activity.time }}</p>
+        <p class="text-sm text-gray-400">{{ activity.time }}</p>
       </li>
     </ul>
   </div>
@@ -65,9 +65,9 @@ import gql from 'graphql-tag';
 import { format } from 'date-fns'; // Import date-fns for date formatting
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  // middleware: 'auth' // Apply the authentication middleware
 });
-
 // Reactive variables for counts
 const totalMovies = ref(0);
 const totalDirectors = ref(0);

@@ -1,3 +1,5 @@
+<!-- checkout page final -->
+
 <template>
   <div class="bg-gray-900 min-h-screen p-8 text-white mt-8">
     <!-- Checkout Header -->
@@ -19,7 +21,7 @@
         </div>
         <div class="text-right">
           <p class="text-sm text-gray-400">Tickets: {{ selectedSeats.length }}</p>
-          <p class="text-2xl font-bold">$ {{ ticketPrice * selectedSeats.length }}</p>
+          <p class="text-2xl font-bold">$ {{ totalPrice }}</p>
         </div>
       </div>
 
@@ -42,15 +44,30 @@
         <h4 class="text-xl font-semibold mb-2">Payment Method</h4>
         <div class="flex flex-col gap-4">
           <label class="flex items-center">
-            <input type="radio" name="paymentMethod" value="creditCard" class="mr-3">
+            <input
+              type="radio"
+              value="creditCard"
+              v-model="payment_method"
+              class="mr-3"
+            >
             Credit Card
           </label>
           <label class="flex items-center">
-            <input type="radio" name="paymentMethod" value="paypal" class="mr-3">
+            <input
+              type="radio"
+              value="paypal"
+              v-model="payment_method"
+              class="mr-3"
+            >
             PayPal
           </label>
           <label class="flex items-center">
-            <input type="radio" name="paymentMethod" value="applePay" class="mr-3">
+            <input
+              type="radio"
+              value="applePay"
+              v-model="payment_method"
+              class="mr-3"
+            >
             Apple Pay
           </label>
         </div>
@@ -61,21 +78,13 @@
         <h4 class="text-xl font-semibold mb-2">Billing Information</h4>
         <div class="grid grid-cols-2 gap-4">
           <input
-            type="text"
-            placeholder="Name on Card"
-            class="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400"
-          />
-          <input
+            v-model="cardNumber"
             type="text"
             placeholder="Card Number"
             class="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400"
           />
           <input
-            type="text"
-            placeholder="Expiration Date"
-            class="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400"
-          />
-          <input
+            v-model="cvv"
             type="text"
             placeholder="CVV"
             class="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400"
@@ -87,23 +96,135 @@
     <!-- Confirm and Pay Button -->
     <div class="text-center">
       <button
+        @click="handleCheckout"
         class="px-8 py-4 bg-red-600 text-white text-lg rounded-full hover:bg-red-700 transition duration-300"
       >
         Confirm and Pay
       </button>
     </div>
+
+
+       <!-- Ticket Modal -->
+    <TicketModal
+      :show="showTicketModal"
+      :movieTitle="movieTitle"
+      :ticketId="ticketId"
+      :selectedTheater="selectedTheater"
+      :selectedTime="selectedTime"
+      :selectedSeats="selectedSeats"
+      :totalPrice="totalPrice"
+      :payment_method="payment_method"
+      @close="showTicketModal = false"
+    />
   </div>
 </template>
 
+
 <script setup>
-import { ref } from 'vue';
+import { useMutation } from '@vue/apollo-composable';
+import gql from 'graphql-tag';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useUserStore } from '../../../../stores/userStore';
+import { parseISO, formatISO } from 'date-fns';
 
 const route = useRoute();
-
+const { user } = useUserStore();
+const showTicketModal = ref(false);
+const ticketId=ref("");
+const payment_method = ref("");
+const cardNumber = ref('');
+const cvv = ref('');
 const movieTitle = ref(route.query.title || "Unknown Movie");
 const selectedTheater = ref(route.query.theater || "Unknown Theater");
 const selectedTime = ref(route.query.time || "Unknown Time");
 const selectedSeats = ref(JSON.parse(route.query.selectedSeats || "[]"));
 const ticketPrice = ref(parseFloat(route.query.ticketPrice || 0));
+
+// Computed property to calculate total price
+const totalPrice = computed(() => ticketPrice.value * selectedSeats.value.length);
+
+// Define the GraphQL mutation
+const INSERT_CHECKOUT_MUTATION = gql`
+  mutation InsertCheckout(
+    $CVV: String!
+    $card_number: Int!
+    $cinema: String!
+    $movie: String!
+    $payment_method: String!
+    $select_seats: jsonb!
+    $showtime: timestamptz!
+    $user_id: uuid!
+  ) {
+    insert_checkout_one(
+      object: {
+        CVV: $CVV
+        card_number: $card_number
+        cinema: $cinema
+        movie: $movie
+        payment_method: $payment_method
+        select_seats: $select_seats
+        showtime: $showtime
+        user_id: $user_id
+      }
+    ) {
+      CVV
+      card_number
+      checkout_id
+      cinema
+      movie
+      payment_method
+      select_seats
+      showtime
+      user_id
+    }
+  }
+`;
+
+const { mutate: insertCheckout } = useMutation(INSERT_CHECKOUT_MUTATION);
+async function handleCheckout() {
+  try {
+    if (!user?.user_id) {
+      console.error("User ID not found. Please log in.");
+      return;
+    }
+    console.log("User ID found:", user.user_id); // Debug statement to check user ID
+
+    const showtimeISO = formatISO(parseISO(selectedTime.value));  
+    const variables = {
+      CVV: cvv.value,
+      card_number: parseInt(cardNumber.value, 10),
+      cinema: selectedTheater.value,
+      movie: movieTitle.value,
+      payment_method: payment_method.value,
+      select_seats: selectedSeats.value.map(seat => seat.label).join(','),
+      showtime: showtimeISO,
+      user_id: user.user_id // Use the actual user ID from the store
+    };
+
+    console.log("Variables for mutation:", variables);
+
+    const { data } = await insertCheckout(variables);
+    console.log("Checkout data:", data);
+
+    const checkout = data.insert_checkout_one.checkout_id;
+    ticketId.value = checkout;
+    console.log("Checkout ID is", ticketId.value);
+
+    // Clear input fields after successful checkout
+    cardNumber.value = '';
+    cvv.value = '';
+    payment_method.value = '';
+
+    // Show the ticket modal
+
+    showTicketModal.value = true;
+
+    // Redirect or show success message
+  } catch (error) {
+    console.error("Checkout error:", error);
+  }
+}
+
+
 </script>

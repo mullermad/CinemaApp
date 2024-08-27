@@ -2,7 +2,7 @@
   <div class="dark:bg-gray-900">
     <!-- Navigation Bar -->
   
-<Nav />
+<!-- <Nav /> -->
     <!-- Hero Section -->
   <Hero />
 

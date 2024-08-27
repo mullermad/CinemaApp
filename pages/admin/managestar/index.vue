@@ -1,9 +1,9 @@
 <template>
-  <div class="flex min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="flex min-h-screen bg-gray-900">
     <!-- Main Content Area -->
     <main class="flex-1 p-4 lg:ml-64">
-      <div class="p-4 border-gray-200 rounded-lg dark:border-gray-700">
-        <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Manage Stars</h1>
+      <div class="p-4 rounded-lg border-gray-700">
+        <h1 class="text-2xl font-bold mb-4 text-white">Manage Stars</h1>
         
         <!-- Add New Director Button -->
         <button
@@ -14,16 +14,16 @@
         </button>
 
         <!-- Add New Director Form -->
-        <div v-if="showForm" class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div v-if="showForm" class="mb-4 p-4 bg-gray-800 border border-gray-700 rounded-lg">
           <h2 class="dark:text-white text-xl font-semibold mb-4">Add New Star</h2>
           <form @submit.prevent="handleSubmit">
             <div class="mb-4">
-              <label for="directorName" class="block text-gray-700 dark:text-gray-300 mb-2">Name</label>
+              <label for="directorName" class="block text-gray-300 mb-2">Name</label>
               <input
                 id="directorName"
                 v-model="newStarName"
                 type="text"
-                class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                class="w-full p-2 border border-gray-600 rounded-lg"
                 required
                 placeholder="Enter director's name"
               />
@@ -38,16 +38,16 @@
         </div>
         
         <div>
-          <table class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <thead class="bg-gray-100 dark:bg-gray-700">
+          <table class="w-full bg-gray-800 border  border-gray-700">
+            <thead class="bg-gray-700">
               <tr>
-                <th class="p-3 text-left text-gray-800 dark:text-white">Name</th>
-                <th class="p-3 text-right text-gray-800 dark:text-white">Actions</th>
+                <th class="p-3 text-left text-white">Name</th>
+                <th class="p-3 text-right text-white">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="star in paginateStars" :key="star.id">
-                <td class="p-3 text-gray-800 dark:text-white">{{ star.name }}</td>
+                <td class="p-3 text-white">{{ star.name }}</td>
                 <td class="p-3 text-right">
                   <button
                     class="text-red-600 hover:underline text-sm"
@@ -63,7 +63,7 @@
 
         <!-- Pagination -->
         <nav class="flex items-center justify-between pt-4" aria-label="Table navigation">
-          <span class="flex items-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+          <span class="flex items-center px-3 h-8 leading-tight border rounded-s-lg  bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-white">
             Showing {{ indexOfFirstItem + 1 }} -
             {{ Math.min(indexOfLastItem, stars.length) }} of
             {{ stars.length }}
@@ -73,7 +73,7 @@
               <button
                 @click="paginate(currentPage - 1)"
                 :disabled="currentPage === 1"
-                class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                class="flex items-center justify-center px-3 h-8 leading-tight  border rounded-s-lg  bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-white"
               >
                 Previous
               </button>
@@ -82,7 +82,7 @@
               <button
                 @click="paginate(n)"
                 :class="[
-                  'px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white',
+                  'px-3 h-8 leading-tight  border  bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-white',
                   currentPage === n ? 'text-blue-600 bg-blue-50' : ''
                 ]"
               >
@@ -93,7 +93,7 @@
               <button
                 @click="paginate(currentPage + 1)"
                 :disabled="currentPage === totalPages"
-                class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                class="flex items-center justify-center px-3 h-8 leading-tight   border  rounded-e-lg bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-white"
               >
                 Next
               </button>

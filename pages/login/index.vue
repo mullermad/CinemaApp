@@ -1,27 +1,27 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-800">
-    <div class="w-full max-w-md bg-white dark:bg-gray-900  p-8 rounded-lg shadow-lg">
+  <div class="flex justify-center items-center min-h-screen bg-gray-800">
+    <div class="w-full max-w-md bg-gray-900  p-8 rounded-lg shadow-lg">
       <form @submit.prevent="onSubmit" class="space-y-6">
-        <h2 class="text-3xl font-bold text-center dark:text-white">Welcome Back!</h2>
+        <h2 class="text-3xl font-bold text-center text-white">Welcome Back!</h2>
 
         <div v-if="error" class="text-xl font-semibold text-center text-red-500">
           {{ error }}
         </div>
 
         <div>
-          <label for="email" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Email</label>
-          <Field name="email" type="email" placeholder="Enter your email" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm" />
+          <label for="email" class="block text-gray-300 text-sm font-bold mb-2">Email</label>
+          <Field name="email" type="email" placeholder="Enter your email" class="w-full p-3 border border-gray-700 rounded-lg shadow-sm" />
           <ErrorMessage name="email" class="text-red-500 text-sm italic" />
         </div>
 
        <div>
-  <label for="password" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Password</label>
+  <label for="password" class="block text-gray-300 text-sm font-bold mb-2">Password</label>
   <div class="relative">
     <Field
       name="password"
       :type="showPassword ? 'text' : 'password'"
       placeholder="Password"
-      class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm"
+      class="w-full p-3 border border-gray-700 rounded-lg shadow-sm"
     />
     <button
       type="button"
@@ -30,7 +30,7 @@
     >
       <svg
           v-if="showPassword"
-          class="w-8 h-8 text-gray-500 dark:text-gray-400"
+          class="w-8 h-8 text-gray-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -45,7 +45,7 @@
         </svg>
         <svg
           v-else
-          class="w-8 h-8 text-gray-500 dark:text-gray-400"
+          class="w-8 h-8 text-gray-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -70,8 +70,8 @@
         </div>
       </form>
 
-      <p class="text-center mt-6 dark:text-white">or</p>
-      <div class="text-center text-lg py-4 dark:text-white">
+      <p class="text-center mt-6 text-white">or</p>
+      <div class="text-center text-lg py-4 text-white">
         <p>
           Don&apos;t have an account? 
           <nuxt-link to="/signup" class="text-blue-600 font-semibold">Sign up</nuxt-link>
@@ -85,6 +85,7 @@
 import { ref } from 'vue';
 import { useField, useForm, ErrorMessage, Field } from 'vee-validate';
 import * as yup from 'yup';
+
 
 const schema = yup.object({
   email: yup.string().email('Please enter a valid email').required('Please enter your email address'),
@@ -104,6 +105,8 @@ const { handleSubmit, isSubmitting } = useForm({
 const { value: email } = useField('email');
 const { value: password } = useField('password');
 
+const { setToken } = useAuthStore();
+const { setUser } = useUserStore();
 
 
 // Define the GraphQL mutation with correct variable type
@@ -136,15 +139,22 @@ const onSubmit = handleSubmit(async (values) => {
     // Execute the mutation with the variables
     const { data } = await mutate(variables);
     // Extract token and user_id from the response
-    const { user_id, token,role } = data.userLogin;
+    // const { user_id, token,role } = data.userLogin;
+    // setToken(token);
+    // setUser({ user_id, role });
+        const { user_id, token, role, name, email } = data.userLogin;
+        console.log("kkkkkkkkkkkkkkkk",data.userLogin);
+
+    setToken(token);
+    setUser({ user_id, role, name, email }); // Store the complete user info
+
+    // Optionally, store user info in local storage
+    // localStorage.setItem('user', JSON.stringify({ user_id, role, name, email }));
+    
 
     console.log('Mutation response:', data);
 
-    // Store the token securely
-    localStorage.setItem('authToken', token);
-
-    // Optionally store user_id if needed
-    localStorage.setItem('userID', user_id);
+   
   
 
    // Redirect based on user role after successful login

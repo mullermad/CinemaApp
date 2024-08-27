@@ -1,33 +1,33 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-800">
-    <div class="w-full max-w-md bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg">
+  <div class="flex justify-center items-center min-h-screen bg-gray-800">
+    <div class="w-full max-w-md bg-gray-900 p-8 rounded-lg shadow-lg">
       <form @submit.prevent="onSubmit" class="space-y-6">
-        <h2 class="text-3xl font-bold text-center dark:text-white">Create Your Account</h2>
+        <h2 class="text-3xl font-bold text-center text-white">Create Your Account</h2>
 
         <div v-if="error" class="text-xl font-semibold text-center text-red-500">
           {{ error }}
         </div>
 
         <div>
-          <label for="username" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Username</label>
-          <Field name="username" type="text" placeholder="Enter your username" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm" />
+          <label for="username" class="block text-gray-300 text-sm font-bold mb-2">Username</label>
+          <Field name="username" type="text" placeholder="Enter your username" class="w-full p-3 border border-gray-700 rounded-lg shadow-sm" />
           <ErrorMessage name="username" class="text-red-500 text-sm italic" />
         </div>
 
         <div>
-          <label for="email" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Email</label>
-          <Field name="email" type="email" placeholder="Enter your email" class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm" />
+          <label for="email" class="block text-gray-300 text-sm font-bold mb-2">Email</label>
+          <Field name="email" type="email" placeholder="Enter your email" class="w-full p-3 border border-gray-700 rounded-lg shadow-sm" />
           <ErrorMessage name="email" class="text-red-500 text-sm italic" />
         </div>
 
 <div>
-    <label for="password" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Password</label>
+    <label for="password" class="block text-gray-300 text-sm font-bold mb-2">Password</label>
     <div class="relative">
       <Field
         name="password"
         :type="showPassword ? 'text' : 'password'"
         placeholder="Password"
-        class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm"
+        class="w-full p-3 border border-gray-700 rounded-lg shadow-sm"
       />
       <button
         type="button"
@@ -36,7 +36,7 @@
       >
         <svg
           v-if="showPassword"
-          class="w-8 h-8 text-gray-500 dark:text-gray-400"
+          class="w-8 h-8 text-gray-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -51,7 +51,7 @@
         </svg>
         <svg
           v-else
-          class="w-8 h-8 text-gray-500 dark:text-gray-400"
+          class="w-8 h-8 text-gray-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -69,13 +69,13 @@
     <ErrorMessage name="password" class="text-red-500 text-sm italic" />
   </div>
        <div>
-  <label for="confirmPassword" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Confirm Password</label>
+  <label for="confirmPassword" class="block text-gray-300 text-sm font-bold mb-2">Confirm Password</label>
   <div class="relative">
     <Field
       name="confirmPassword"
       :type="showConfirmPassword ? 'text' : 'password'"
       placeholder="Confirm your password"
-      class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm"
+      class="w-full p-3 border border-gray-700 rounded-lg shadow-sm"
     />
     <button
       type="button"
@@ -84,7 +84,7 @@
     >
       <svg
         v-if="showConfirmPassword"
-        class="w-8 h-8 text-gray-500 dark:text-gray-400" 
+        class="w-8 h-8 text-gray-400" 
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -100,7 +100,7 @@
    
       <svg
         v-else
-        class="w-8 h-8 text-gray-500 dark:text-gray-400" 
+        class="w-8 h-8 text-gray-400" 
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -126,8 +126,8 @@
         </div>
       </form>
 
-      <p class="text-center mt-6 dark:text-white">or</p>
-      <div class="text-center text-lg py-4 dark:text-white">
+      <p class="text-center mt-6 text-white">or</p>
+      <div class="text-center text-lg py-4 text-white">
         <p>
           Already have an account? 
           <nuxt-link to="/login" class="text-blue-600 font-semibold">Login</nuxt-link>

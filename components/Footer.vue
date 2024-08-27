@@ -1,11 +1,11 @@
 <template>
-  <footer class="border-gray-200 bg-gray-50 dark:text-white dark:bg-gray-800 dark:border-gray-700  py-6">
+  <footer class="text-white bg-gray-800 border-gray-700  py-6">
     <div class="w-full max-w-screen-xl mx-auto px-4">
       <div class="flex flex-col md:flex-row md:justify-between items-center">
         <!-- Brand Section -->
         <div class="flex items-center mb-4 md:mb-0">
           <nuxt-link to="/" class="flex items-center">
-            <span class="text-3xl font-bold whitespace-nowrap">MovieVerse</span>
+            <span class="text-xl font-bold whitespace-nowrap">MovieVerse</span>
           </nuxt-link>
         </div>
 
@@ -27,24 +27,20 @@
 
         <!-- Social Media Links -->
         <div class="flex space-x-4 mt-4 md:mt-0">
-          <a href="#" aria-label="Facebook" class="hover:text-gray-400">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a href="#" aria-label="Twitter" class="hover:text-gray-400">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a href="#" aria-label="Instagram" class="hover:text-gray-400">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="#" aria-label="YouTube" class="hover:text-gray-400">
-            <i class="fab fa-youtube"></i>
-          </a>
+          <nuxt-link to="https://github.com/mullermad" aria-label="Github" class="hover:text-gray-400">
+            <i class="fab fa-facebook-f">Github</i>
+          </nuxt-link>
+          <nuxt-link to="https://github.com/mullermad" aria-label="Twitter" class="hover:text-gray-400">
+            <i class="fab fa-twitter">linkedin</i>
+          </nuxt-link>
+          
+         
         </div>
       </div>
 
       <!-- Footer Bottom Section -->
       <div class="text-center mt-6 text-sm">
-        <span>© {{ currentYear }} <nuxt-link to="/" class="hover:underline">AMC Theatres</nuxt-link>. All Rights Reserved.</span>
+        <span>© {{ currentYear }} <nuxt-link to="/" class="hover:underline">MovieVerse</nuxt-link>. All Rights Reserved.</span>
       </div>
     </div>
   </footer>

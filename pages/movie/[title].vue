@@ -1,38 +1,36 @@
 <template>
-  <section class="w-full min-h-screen bg-white dark:bg-gray-900 flex flex-col items-center shadow-lg mt-8">
+  <section class="w-full min-h-screen bg-gray-900 flex flex-col items-center shadow-lg mt-10">
     <!-- Container for the movie details -->
     <div class="relative max-w-screen-xl mx-auto px-4 py-8 flex flex-col md:flex-row items-start">
       <!-- Movie Poster -->
       <div class="flex-none w-full md:w-1/3 lg:w-1/4 mb-8 md:mb-0">
-        <img src="@/assets/img/poster1.jpeg" alt="Movie Poster" class="w-full h-auto object-cover rounded-lg shadow-lg" />
+        <img :src="movie.poster_url" alt="Movie Poster" class="w-full h-auto object-cover rounded-lg shadow-lg" />
       </div>
 
       <!-- Movie Details -->
       <div class="flex-1 ml-0 md:ml-8">
-        <h1 class="text-4xl text-black dark:text-white font-extrabold mb-4 leading-tight">{{ movie.title }}</h1>
-        <p class="text-lg mb-6 text-black dark:text-white">{{ movie.description }}</p>
+        <h1 class="text-4xl text-white font-extrabold mb-4 leading-tight">{{ movie.title }}</h1>
+        <p class="text-lg mb-6 text-white">{{ movie.description }}</p>
 
-        <div class="mb-6">
-          <p class="text-sm font-medium mb-1 text-black dark:text-white">GENRE: <span class="font-normal">Drama</span></p>
-          <p class="text-sm font-medium mb-1 text-black dark:text-white">RELEASE DATE: <span class="font-normal">{{ movie.releaseDate }}</span></p>
-          <p class="text-sm font-medium text-black dark:text-white">RATING: <span class="font-normal">{{ movie.rating }}</span></p>
-        </div>
-                  <div class="mb-8">
-          <h2 class="text-2xl text-black dark:text-white font-semibold mb-4">Cast</h2>
-          <div v-for="(star, index) in movie.stars" :key="index">
-            <p class="text-md text-2xl font-medium mb-1  text-black dark:text-white">{{ star }}  <span class="ml-12">actor</span></p>
-          </div>
-        </div>
+       <div class="mb-6 space-y-2">
+  <p class="text-sm font-medium text-white p-2">
+    <span class="font-semibold mr-3">GENRE:</span> 
+    <span class="font-semibold text-xl">{{ movie.genre.name }}</span>
+  </p>
+  <p class="text-sm font-medium text-white p-2">
+    <span class="font-semibold mr-3 ">RELEASE DATE:</span> 
+    <span class="font-semibold text-xl">{{ movie.release_date }}</span>
+  </p>
+</div>
 
+        
 
         <!-- Action Buttons -->
         <div class="flex space-x-4 mt-6">
-          <button @click="bookmarkMovie" class="px-6 py-3 bg-gray-800 rounded-lg text-white font-semibold hover:bg-gray-700 transition duration-300">
-            <i class="fas fa-heart mr-2"></i> Add to Favorites
-          </button>
           <nuxt-link :to="getTicketLink" class="px-6 py-3 bg-red-400 rounded-lg font-semibold text-white hover:bg-red-500 transition duration-300">
             Get Tickets
           </nuxt-link>
+
         </div>
       </div>
     </div>
@@ -47,42 +45,37 @@ const isLogin = ref(true);
 const route = useRoute();
 const router = useRouter();
 
-const getImageUrl = (filename) => {
-  return new URL(`../assets/img/${filename}`, import.meta.url).href;
-};
 
 const movie = computed(() => {
   return {
+    movie_id: decodeURIComponent(route.query.movie_id || ''),
     title: decodeURIComponent(route.query.title || 'Unknown Title'),
-    poster: decodeURIComponent(route.query.poster || 'default-poster.jpeg'),
+    poster_url: decodeURIComponent(route.query.poster || 'default-poster.jpeg'),
+    release_date: decodeURIComponent(route.query.release_date || 'Unknown Release Date'),
     description: decodeURIComponent(route.query.description || 'No description available.'),
-    stars: (route.query.stars || '').split(','),
-    schedule: (route.query.schedule || '').split('|'),
-    rating: 'PG-13',
-    releaseDate: 'Friday, Aug 23, 2024',
+    genre: { name: decodeURIComponent(route.query.genre || 'Unknown Genre') },
+    schedules: (route.query.schedules || '').split('|').map(schedule => {
+      const [Theatres, showtime] = schedule.split(':');
+      return { Theatres, showtime };
+    }),
+    rating: decodeURIComponent(route.query.rating || 'PG-13'),
   };
 });
 
-const bookmarkMovie = () => {
-  if (isLogin.value) {
-    alert('Movie bookmarked!');
-  } else {
-    router.push('/login');
-  }
-};
 
 const getTicketLink = computed(() => {
   return {
     path: '/teatorslist',
     query: {
       title: movie.value.title,
-      poster: movie.value.poster,
+      poster: movie.value.poster_url,
       description: movie.value.description,
-      rating: movie.value.rating,
-      releaseDate: movie.value.releaseDate
+      schedules: movie.value.schedules.map(schedule => `${schedule.Theatres}:${schedule.showtime}`).join('|')
     }
   };
 });
+
+
 </script>
 
 <style scoped>

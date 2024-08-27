@@ -4,7 +4,16 @@ import path from "path";
 const __dirname = path.resolve();
 
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/apollo"],
+  modules: ["@nuxtjs/apollo", "@pinia/nuxt"],
+  pinia: {
+    autoImports: ["defineStore"],
+  },
+  imports: {
+    dirs: ["./stores"],
+  },
+  router: {
+    middleware: ["auth"], // Apply middleware globally if needed
+  },
   apollo: {
     clients: {
       default: {
@@ -23,4 +32,6 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+  plugins: ["@/plugins/auth.ts",],
 });
+
