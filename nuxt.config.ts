@@ -4,6 +4,11 @@ import path from "path";
 const __dirname = path.resolve();
 
 export default defineNuxtConfig({
+  target: "static",
+  ssr: false,
+  generate: {
+    fallback: true,
+  },
   modules: ["@nuxtjs/apollo", "@pinia/nuxt"],
   pinia: {
     autoImports: ["defineStore"],
@@ -11,13 +16,13 @@ export default defineNuxtConfig({
   imports: {
     dirs: ["./stores"],
   },
-  router: {
-    middleware: ["auth"], // Apply middleware globally if needed
-  },
+  // router: {
+  //   middleware: ["auth.global.ts"], // Apply middleware globally if needed
+  // },
   apollo: {
     clients: {
       default: {
-        httpEndpoint: "http://localhost:8080/v1/graphql",
+        httpEndpoint: "https://hasuraapp.hasura.app/v1/graphql",
         autoImports: true,
       },
     },
@@ -32,6 +37,6 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  plugins: ["@/plugins/auth.ts",],
+  plugins: ["@/plugins/auth.ts"],
 });
 
