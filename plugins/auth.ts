@@ -8,10 +8,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   if (process.client) {
     const token = localStorage.getItem("authToken");
-    console.log("lllllllllllllllllllllllllll plugin", token);
 
     if (userStore.user) {
-      console.log("fetchinggggggggggggggggggggggggggggggg");
       
       await userStore.fetchUser();
     }
