@@ -1,7 +1,7 @@
 
 <template>
   <aside id="default-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen  bg-gray-800 transition-transform">
-      <div class="h-full px-3 py-4 overflow-y-auto">
+      <div class="h-full px- py-4 overflow-y-auto">
         <ul class="space-y-2 font-medium">
            <li>
            <h1 class="text-white text-bold text-2xl p-4">Admin Dashboard</h1>

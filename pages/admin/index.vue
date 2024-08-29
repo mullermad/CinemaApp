@@ -1,10 +1,10 @@
 <template>
-  <div class="flex h-screen bg-gray-900">
+  <div class="flex min-h-screen bg-gray-900">
   
     
 
     <!-- Content Area -->
-    <div class="flex-1 ml-64 p-4">
+    <div class="flex-1 lg:ml-64 p-4">
     <div class="p-4 border-2  border-dashed rounded-lg border-gray-700">
       <!-- Admin Dashboard Overview -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">

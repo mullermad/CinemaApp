@@ -23,7 +23,7 @@
                 <nuxt-link to="/movies-in-theaters" class="text-blue-400 hover:underline font-semibold mt-2">SEE ALL MOVIES</nuxt-link>
 
       </div>
-          <h1 class="text-3xl font-bold text-center my-8 text-white">Movies List</h1>
+          <h1 class="text-3xl font-bold text-center my-8 text-white p-8 mt-12">Movies List</h1>
 
       <!-- Search Input -->
       <div class="mb-6  max-w-lg mx-auto">

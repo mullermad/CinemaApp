@@ -7,9 +7,12 @@
     
     <!-- Favorite Movies Link and Profile Avatar on the Right -->
     <div class="flex items-center space-x-4 ml-auto">
-      <nuxt-link to="/bookmark" class=" px-5 mr-5 text-white text-lg font-semibold">
-        favorites
-      </nuxt-link>
+        <nuxt-link to="/bookmark" class="px-5 mr-5 text-white text-lg font-semibold">
+          Favorites
+        </nuxt-link>
+      <!-- userRole <nuxt-link to="/bookmark" class=" px-5 mr-5 text-white text-lg font-semibold">
+        Favorites
+      </nuxt-link> -->
       <div class="relative group">
         <img
           src="@/assets/img/profile.jpg"

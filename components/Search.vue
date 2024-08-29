@@ -217,3 +217,184 @@ const confirmDelete = () => {
   showModal.value = false;
 };
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <template>
+  <div>
+    <!-- Render nothing until loading is complete to prevent flashing -->
+    <div v-if="loading" class="min-h-screen bg-gray-100 dark:bg-gray-900 flex justify-center items-center">
+      <!-- Optional: Add a loading spinner or message here -->
+      <span>Loading...</span>
+    </div>
+
+    <div v-else class="bg-gray-900 min-h-screen">
+      <!-- Navigation Bar -->
+      <nav class="fixed top-0 left-0 w-full z-50 mb-5 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+          <!-- Conditional rendering based on screen size -->
+          <div>
+            <!-- Hamburger Menu Button - visible on small screens -->
+            <button
+              v-if="isSmallScreen"
+              @click="toggleSidebar"
+              type="button"
+              class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+            >
+              <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+              </svg>
+            </button>
+
+            <!-- "Admin Page" Header - visible on large screens -->
+            <h1 v-else class="text-xl font-semibold text-gray-900 dark:text-white">Admin Page</h1>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Conditionally render LoginNavbar if authenticated, otherwise render Nav -->
+      <LoginNavbar v-if="isAuthenticated" :user="user" />
+      <Nav v-else />
+
+      <!-- Sidebar - Hidden by default on small screens, shown when isSidebarOpen is true -->
+      <div 
+        :class="{
+          'block': !isSmallScreen || isSidebarOpen,
+          'hidden': isSmallScreen && !isSidebarOpen
+        }"
+        class="fixed top-0 left-0 z-40 w-64 h-full bg-gray-800 sm:relative sm:block sm:w-auto"
+      >
+        <Adminsidebar />
+      </div>
+
+      <!-- Main Content -->
+      <div class="pt-16"> <!-- Adjust for the fixed navbar height -->
+        <slot />
+        <Footer />
+      </div>
+    </div>
+  </div>
+</template> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<template>
+  <div>
+    <!-- Loading Spinner -->
+    <div v-if="loading" class="min-h-screen bg-gray-100 dark:bg-gray-900 flex justify-center items-center">
+      <span>Loading...</span>
+    </div>
+
+    <div v-else class="bg-gray-900 min-h-screen flex flex-col lg:flex-row">
+      <!-- Navigation Bar -->
+      <nav class="fixed top-0 left-0 w-full z-50 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+        <div class="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+          <!-- Hamburger Menu Button - visible on medium and small screens -->
+          <button
+            @click="toggleSidebar"
+            type="button"
+            class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 lg:hidden"
+          >
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" />
+            </svg>
+          </button>
+          <h1 class="text-xl font-semibold text-gray-900 dark:text-white lg:hidden">Admin Page</h1>
+        </div>
+      </nav>
+
+      <!-- Sidebar - Hidden on small/medium screens, shown on large screens or when isSidebarOpen is true -->
+      <div
+        :class="{
+          'lg:w-64': true, // Fixed width on large screens
+          'w-64': isSidebarOpen && isMediumOrSmallScreen, // Show sidebar when open on small/medium screens
+          'hidden': isMediumOrSmallScreen && !isSidebarOpen // Hide sidebar on small/medium screens when closed
+        }"
+        class="bg-gray-800 transition-all duration-300 ease-in-out"
+      >
+        <Adminsidebar v-if="!isMediumOrSmallScreen || isSidebarOpen" />
+      </div>
+
+      <!-- Main Content -->
+      <div :class="{'flex-1': true, 'ml-0 lg:ml-0': true} " class="pt-16 pl-0">
+        <slot />
+        <Footer />
+      </div>
+    </div>
+  </div>
+</template>
+
+
+
+<template>
+  <div>
+    <!-- Loading Spinner -->
+    <div v-if="loading" class="min-h-screen bg-gray-100 dark:bg-gray-900 flex justify-center items-center">
+      <span>Loading...</span>
+    </div>
+
+    <div v-else class="bg-gray-900 min-h-screen flex flex-col lg:flex-row">
+      <!-- Navigation Bar -->
+      <nav class="fixed top-0 left-0 w-full z-50 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+        <div class="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+          <!-- Hamburger Menu Button - visible on medium and small screens -->
+          <button
+            @click="toggleSidebar"
+            type="button"
+            class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 lg:hidden"
+          >
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" />
+            </svg>
+          </button>
+          <h1 class="text-xl font-semibold text-gray-900 dark:text-white lg:hidden">Admin Page</h1>
+        </div>
+      </nav>
+
+      <!-- Sidebar - Hidden on small/medium screens, shown on large screens or when isSidebarOpen is true -->
+      <div
+        :class="{
+          'lg:w-64': true, // Fixed width on large screens
+          'w-64': isSidebarOpen && isMediumOrSmallScreen, // Show sidebar when open on small/medium screens
+          'hidden': isMediumOrSmallScreen && !isSidebarOpen // Hide sidebar on small/medium screens when closed
+        }"
+        class="bg-gray-800 transition-all duration-300 ease-in-out"
+      >
+        <Adminsidebar v-if="!isMediumOrSmallScreen || isSidebarOpen" />
+      </div>
+
+      <!-- Main Content -->
+      <div :class="{'flex-1': true, 'ml-0 lg:ml-0': true} " class="pt-16 pr">
+        <slot />
+        <Footer />
+      </div>
+    </div>
+  </div>
+</template>
