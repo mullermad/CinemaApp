@@ -1,69 +1,86 @@
 <template>
   <section class="bg-gray-900 relative w-full min-h-screen bg-cover bg-center pt-16">
     <!-- Loading State -->
-    <div
-      v-if="loading"
-      class="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-60 text-white text-xl font-bold"
-    >
+    <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 text-white text-xl font-bold">
       Loading...
     </div>
 
     <!-- Error State -->
-    <div
-      v-if="error"
-      class="absolute inset-0 flex items-center justify-center bg-red-600 bg-opacity-80 text-white text-xl font-bold"
-    >
+    <div v-if="error" class="absolute inset-0 flex items-center justify-center bg-red-600 bg-opacity-80 text-white text-xl font-bold">
       Error loading movies: {{ error.message }}
     </div>
 
     <!-- Movies List -->
-    <div v-if="!loading && !error" class="relative z-10">
-      <div class="absolute top-4 left-4 z-30 flex flex-col items-start space-y-2">
-        <h2 class="text-2xl font-bold text-white  drop-shadow-lg">MOVIES IN THEATERS</h2>
-      </div>
-      <h1 class="text-3xl font-bold text-center my-8 text-white">Movies List</h1>
+    <div v-if="!loading && !error" class="relative z-10 max-w-screen-xl mx-auto px-6">
+      <!-- Title and Search Centered on Large Screens -->
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-center mt-4">
+        <h1 class="text-3xl font-bold text-white mb-4 lg:mb-0 lg:mr-6">Movies List</h1>
 
-      <!-- Search Input -->
-      <div class="mb-6 max-w-lg mx-auto">
-        <input
-          type="text"
-          v-model="searchTerm"
-          placeholder="Search movies by title"
-          class="w-full border border-gray-300 shadow-md p-4 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 ring-blue-500"
-        />
+        <!-- Centered Search Input -->
+      <div class="w-full lg:w-1/2 xl:max-w-2xl mb-4 lg:mb-0 lg:flex lg:justify-center">
+  <input
+    type="text"
+    v-model="searchTerm"
+    @keyup.enter="searchMovies"
+    placeholder="Search movies"
+    class="w-full border border-gray-500 shadow-lg p-4 lg:p-5 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+  />
+</div>
+
       </div>
 
-      <!-- Genre Filter -->
-      <div class="flex flex-wrap gap-2 justify-center max-w-screen-lg">
-        <button
-          v-for="genre in genres"
-          :key="genre"
-          @click="filterByGenre(genre)"
-          :class="{
-            'bg-blue-400': activeGenre === genre,
-            'bg-blue-500': activeGenre !== genre
-          }"
-          class="px-4 py-2 rounded-full text-white font-semibold focus:outline-none hover:bg-blue-600 transition duration-300"
-        >
-          {{ genre }}
-        </button>
+      <!-- Filters: Genre and Director -->
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-4 space-y-4 lg:space-y-0 lg:space-x-4">
+        <!-- Genre Filter -->
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="genre in uniqueGenres"
+            :key="genre"
+            @click="filterByGenre(genre)"
+            :class="{
+              'bg-blue-600': activeGenre === genre,
+              'bg-gray-900': activeGenre !== genre
+            }"
+            class="px-4 py-2 rounded-full text-white font-medium hover:bg-blue-700 transition duration-300"
+          >
+            {{ genre }}
+          </button>
+        </div>
+
+        <!-- Director Filter -->
+        <div class="w-full lg:max-w-xs">
+          <select
+            v-model="activeDirector"
+            @change="searchMovies"
+            class="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          >
+            <option value="">Filter by a Director</option>
+            <option
+              v-for="director in directors"
+              :key="director"
+              :value="director"
+            >
+              {{ director }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <!-- No Movies Found Message -->
       <div v-if="filteredMovies.length === 0" class="text-center my-8 text-xl font-semibold text-gray-300">
-        No movies found for genre.
+        No movies found for the selected criteria.
       </div>
 
       <!-- Movies Grid -->
-      <div v-else class="w-full max-w-screen-xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-8">
         <router-link
           v-for="movie in filteredMovies"
           :key="movie.movie_id"
           :to="getMovieLink(movie)"
-          class="relative block p-2 hover:scale-105 transition-transform duration-300 shadow-lg rounded-lg overflow-hidden"
+          class="relative block p-2 hover:scale-105 transition-transform duration-300 shadow-lg rounded-lg overflow-hidden bg-gray-900"
         >
-          <img :src="movie.poster_url" :alt="movie.title" class="w-full h-auto object-cover" />
-          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+          <img :src="movie.poster_url[0]" :alt="movie.title" class="w-full h-72 object-cover rounded-t-lg" />
+          <div class="p-4">
             <h2 class="text-white text-lg font-semibold">{{ movie.title }}</h2>
           </div>
         </router-link>
@@ -72,158 +89,276 @@
   </section>
 </template>
 
-
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
 import gql from 'graphql-tag';
 
-// Define the GraphQL query
+const token = localStorage.getItem("authToken");
+
 const GET_MOVIES_QUERY = gql`
-  query GetMovies {
-    movie {
+  query GetMovies($limit: Int, $offset: Int, $title: String, $genre: String, $director: String) {
+    movie(
+      limit: $limit,
+      offset: $offset,
+      where: {
+        title: { _ilike: $title },
+        genre: { name: { _ilike: $genre } },
+        director: { name: { _ilike: $director } }
+      }
+    ) {
       movie_id
       title
       poster_url
-      release_date
-      description
-      stars
       genre {
         name
       }
-      schedules {
-        showtime
+      director {
+        name
       }
     }
   }
 `;
 
-// Use the query
-const { result, loading, error } = useQuery(GET_MOVIES_QUERY);
+const GET_GENRES = gql`
+  query GetGenres {
+    genre {
+      name
+    }
+  }
+`;
 
-// Define reactive variables
+const GET_DIRECTORS = gql`
+  query GetDirectors {
+    director {
+      name
+    }
+  }
+`;
+
 const movies = ref([]);
+const genres = ref([]);
+const directors = ref([]);
 const searchTerm = ref('');
 const activeGenre = ref('');
+const activeDirector = ref('');
+const currentPage = ref(1);
+const moviesPerPage = 5;
+const offset = ref(0);
+const totalMovies = ref(0);
 
+const { result, loading, error, refetch } = useQuery(
+  GET_MOVIES_QUERY,
+  {
+    limit: moviesPerPage,
+    offset: offset.value,
+    title: `%${searchTerm.value}%`,
+    genre: activeGenre.value ? `%${activeGenre.value}%` : '%%',
+    director: activeDirector.value ? `%${activeDirector.value}%` : '%%'
+  },
+  {
+    context: {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ? `Bearer ${token}` : ''
+      }
+    }
+  }
+);
 
-// Watch for changes in the result and update movies
+const { result: genreResult } = useQuery(
+  GET_GENRES,
+  {},
+  {
+    context: {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ? `Bearer ${token}` : ''
+      }
+    }
+  }
+);
+
+const { result: directorResult } = useQuery(
+  GET_DIRECTORS,
+  {},
+  {
+    context: {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ? `Bearer ${token}` : ''
+      }
+    }
+  }
+);
+
 watch(result, (newResult) => {
   if (newResult?.movie) {
     movies.value = newResult.movie;
   }
 }, { immediate: true });
 
-// Computed property to filter movies based on search term and genre
-const filteredMovies = computed(() => {
-  let filtered = movies.value;
-
-  if (searchTerm.value) {
-    filtered = filtered.filter(movie =>
-      movie.title.toLowerCase().includes(searchTerm.value.toLowerCase())
-    );
+watch(genreResult, (newResult) => {
+  if (newResult?.genre) {
+    genres.value = newResult.genre.map(g => g.name);
   }
+}, { immediate: true });
 
-  if (activeGenre.value) {
-    filtered = filtered.filter(movie =>
-      movie.genre && movie.genre.name === activeGenre.value
-    );
+watch(directorResult, (newResult) => {
+  if (newResult?.director) {
+    directors.value = newResult.director.map(d => d.name);
   }
+}, { immediate: true });
 
-  return filtered;
-});
+const uniqueGenres = computed(() => [...new Set(genres.value)]);
+const filteredMovies = computed(() => movies.value);
 
-// List of genres
-const genres = [
-  'Action', 'Drama', 'Comedy', 'Kids', 'Horror', 'Romance',
-  'Animated', 'Documentaries',
-  'Foreign', 'Special Events', 'Western', 'Spy Film', 'Drama,History',
-  'Classic', 'Sci-Fi'
-];
+const fetchMovies = () => {
+  refetch({
+    limit: moviesPerPage,
+    offset: offset.value,
+    title: `%${searchTerm.value}%`,
+    genre: activeGenre.value ? `%${activeGenre.value}%` : '%%',
+    director: activeDirector.value ? `%${activeDirector.value}%` : '%%'
+  });
+};
 
-// Function to filter movies by genre
 const filterByGenre = (genre) => {
   activeGenre.value = genre;
+  searchMovies();
 };
 
-// Function to generate a movie link
+const searchMovies = () => {
+  currentPage.value = 1;
+  offset.value = 0;
+  fetchMovies();
+};
+
 const getMovieLink = (movie) => {
   return {
-    path: `/movie/${movie.title.toLowerCase().replace(/\s+/g, '-')}`,
-    query: {
-      title: movie.title,
-      poster: movie.poster_url,
-      description: movie.description,
-      stars: (movie.stars && Array.isArray(movie.stars)) ? movie.stars.join(',') : '',
-      schedule: movie.schedules?.map(schedule => schedule.showtime).join('|') || ''
-    }
+    path: `/movie/${movie.title.replace(/\s+/g, '-')}`,
+    query: { movie_id: movie.movie_id }
   };
 };
-
 </script>
 
-<style scoped>
-section {
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow: hidden;
-}
-.loader {
-  text-align: center;
-  font-size: 1.5em;
-  margin: 20px;
-}
 
-.error {
-  color: red;
-  text-align: center;
-  font-size: 1.2em;
-  margin: 20px;
-}
+<!-- 
+<script setup>
+import { ref, computed, watch } from 'vue';
+import { useQuery } from '@vue/apollo-composable';
+import gql from 'graphql-tag';
 
-.movies-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
+const GET_MOVIES_QUERY = gql`
+  query GetMovies($limit: Int, $offset: Int, $title: String, $genre: String, $director: String) {
+    movie(
+      limit: $limit,
+      offset: $offset,
+      where: {
+        title: { _ilike: $title },
+        genre: { name: { _ilike: $genre } },
+        director: { name: { _ilike: $director } }
+      }
+    ) {
+      movie_id
+      title
+      poster_url
+      genre {
+        name
+      }
+      director {
+        name
+      }
+    }
+  }
+`;
 
-.movie-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-}
+const GET_GENRES = gql`
+  query GetGenres {
+    genre {
+      name
+    }
+  }
+`;
 
-.movie-card:hover {
-  transform: scale(1.05);
-}
+const GET_DIRECTORS = gql`
+  query GetDirectors {
+    director {
+      name
+    }
+  }
+`;
 
-.movie-poster {
-  width: 100%;
-  height: auto;
-}
+const movies = ref([]);
+const genres = ref([]);
+const directors = ref([]);
+const searchTerm = ref('');
+const activeGenre = ref('');
+const activeDirector = ref('');
+const currentPage = ref(1);
+const moviesPerPage = 5;
+const offset = ref(0);
+const totalMovies = ref(0);
+const token = localStorage.getItem("authToken");
 
-.movie-details {
-  padding: 15px;
-}
 
-.view-details-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  margin-top: 10px;
-}
+const { result, loading, error, refetch } = useQuery(GET_MOVIES_QUERY, {
+  limit: moviesPerPage,
+  offset: offset.value,
+  title: `%${searchTerm.value}%`,
+  genre: activeGenre.value ? `%${activeGenre.value}%` : '%%',
+  director: activeDirector.value ? `%${activeDirector.value}%` : '%%'
+});
 
-.view-details-button:hover {
-  background-color: #0056b3;
-}
-</style>
+const { result: genreResult } = useQuery(GET_GENRES);
+const { result: directorResult } = useQuery(GET_DIRECTORS);
+
+watch(result, (newResult) => {
+  if (newResult?.movie) {
+    movies.value = newResult.movie;
+  }
+}, { immediate: true });
+
+watch(genreResult, (newResult) => {
+  if (newResult?.genre) {
+    genres.value = newResult.genre.map(g => g.name);
+  }
+}, { immediate: true });
+
+watch(directorResult, (newResult) => {
+  if (newResult?.director) {
+    directors.value = newResult.director.map(d => d.name);
+  }
+}, { immediate: true });
+
+const uniqueGenres = computed(() => [...new Set(genres.value)]);
+const filteredMovies = computed(() => movies.value);
+
+const fetchMovies = () => {
+  refetch({
+    limit: moviesPerPage,
+    offset: offset.value,
+    title: `%${searchTerm.value}%`,
+    genre: activeGenre.value ? `%${activeGenre.value}%` : '%%',
+    director: activeDirector.value ? `%${activeDirector.value}%` : '%%'
+  });
+};
+
+const filterByGenre = (genre) => {
+  activeGenre.value = genre;
+  searchMovies();
+};
+
+const searchMovies = () => {
+  currentPage.value = 1;
+  offset.value = 0;
+  fetchMovies();
+};
+
+const getMovieLink = (movie) => {
+  return {
+    path: `/movie/${movie.title.replace(/\s+/g, '-')}`,
+    query: { movie_id: movie.movie_id }
+  };
+};
+</script> -->

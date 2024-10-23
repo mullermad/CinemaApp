@@ -1,5 +1,5 @@
 <template>
-  <footer class="text-white bg-gray-800 border-gray-700  py-6">
+  <footer class="text-white bg-gray-900 border-gray-700  py-6">
     <div class="w-full max-w-screen-xl mx-auto px-4">
       <div class="flex flex-col md:flex-row md:justify-between items-center">
         <!-- Brand Section -->
@@ -10,7 +10,7 @@
         </div>
 
         <!-- Navigation Links -->
-        <ul class="flex flex-wrap items-center text-sm font-medium space-x-4">
+        <!-- <ul class="flex flex-wrap items-center text-sm font-medium space-x-4">
           <li>
             <nuxt-link to="#" class="hover:underline">About Us</nuxt-link>
           </li>
@@ -23,15 +23,15 @@
           <li>
             <nuxt-link to="#" class="hover:underline">Contact Us</nuxt-link>
           </li>
-        </ul>
+        </ul> -->
 
         <!-- Social Media Links -->
         <div class="flex space-x-4 mt-4 md:mt-0">
           <nuxt-link to="https://github.com/mullermad" aria-label="Github" class="hover:text-gray-400">
-            <i class="fab fa-facebook-f">Github</i>
+            <i>Github</i>
           </nuxt-link>
-          <nuxt-link to="https://github.com/mullermad" aria-label="Twitter" class="hover:text-gray-400">
-            <i class="fab fa-twitter">linkedin</i>
+          <nuxt-link to="https://www.linkedin.com/in/muluken-demis-711107259" aria-label="Twitter" class="hover:text-gray-400">
+            <i>linkedin</i>
           </nuxt-link>
           
          

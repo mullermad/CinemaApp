@@ -132,8 +132,20 @@ const onSubmit = handleSubmit(async (values) => {
 
   console.log("variables:", variables);
 
-  // Initialize the mutation
-  const { mutate } = useMutation(LOGIN_MUTATION);
+  //Initialize the mutation
+  // const { mutate } = useMutation(LOGIN_MUTATION);
+
+  // Initialize the mutation with headers
+  const { mutate } = useMutation(LOGIN_MUTATION, {
+    context: {
+      headers: {
+        'Content-Type': 'application/json', // Specify content type if necessary
+        // Include Authorization header if using tokens
+        // 'Authorization': 'Bearer <your_token_if_needed>', // Replace with the token if you need to send it
+      },
+    },
+  });
+  // Initialize the mutation with headers
 
   try {
     // Execute the mutation with the variables

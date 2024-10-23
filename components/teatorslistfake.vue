@@ -122,7 +122,13 @@ mutation AddBookmark($user_id: uuid!, $movie: String!) {
     }
   }
 `;
-
+// mutation MyMutation {
+//   insert_schedule_one(object: {cinemaschedule: {data: {user_id: "39e67390-1769-4119-a2e1-0966d7c2622c"}}}) {
+//     Theatres
+//     movie_id
+//     showtime
+//   }
+// }
 
 const route = useRoute();
 const movie_id = route.query.movie_id || '';

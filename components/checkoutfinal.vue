@@ -18,27 +18,67 @@
           <p class="text-sm text-gray-400">Showtime: {{ selectedTime }}</p>
         </div>
         <div class="text-right">
-          <p class="text-md text-gray-400">Ticket Quantity: {{ ticketQuantity }}</p>
-          <p class="text-md text-gray-400">Total Price: ${{ totalPrice }}</p>
+          <p class="text-md text-gray-400">ticketQuantity: {{ ticketQuantity }}</p>
+          <p class="text-md text-gray-400">Total Price :$ {{ totalPrice }}</p>
+        </div>
+      </div>
+
+      <!-- Payment Options -->
+      <div class="mb-6">
+        <h4 class="text-xl font-semibold mb-2">Payment Method</h4>
+        <div class="flex flex-col gap-4">
+          <label class="flex items-center">
+            <input
+              type="radio"
+              value="creditCard"
+              v-model="payment_method"
+              class="mr-3"
+            >
+            Credit Card
+          </label>
+          <label class="flex items-center">
+            <input
+              type="radio"
+              value="paypal"
+              v-model="payment_method"
+              class="mr-3"
+            >
+            PayPal
+          </label>
+          <label class="flex items-center">
+            <input
+              type="radio"
+              value="applePay"
+              v-model="payment_method"
+              class="mr-3"
+            >
+            Apple Pay
+          </label>
+        </div>
+      </div>
+
+      <!-- Billing Information -->
+      <div>
+        <h4 class="text-xl font-semibold mb-2">Billing Information</h4>
+        <div class="grid grid-cols-2 gap-4">
+          <input
+            v-model="cardNumber"
+            type="text"
+            placeholder="Card Number"
+            class="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400"
+          />
+          <input
+            v-model="cvv"
+            type="text"
+            placeholder="CVV"
+            class="p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400"
+          />
         </div>
       </div>
     </div>
 
-    <!-- Loading Spinner -->
-    <div v-if="isProcessing" class="flex justify-center items-center mb-12">
-      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-red-600"></div>
-      <p class="ml-4 text-lg">Processing your payment...</p>
-    </div>
-
-    <!-- Payment Success Message -->
-    <div v-if="isPaymentSuccessful" class="flex justify-center items-center mb-12">
-      <div class="bg-green-600 p-4 rounded-lg">
-        <p class="text-xl">🎉 Payment Successful! Your tickets are ready.</p>
-      </div>
-    </div>
-
     <!-- Confirm and Pay Button -->
-    <div v-if="!isProcessing && !isPaymentSuccessful" class="text-center">
+    <div class="text-center">
       <button
         @click="handleCheckout"
         class="px-8 py-4 bg-red-600 text-white text-lg rounded-full hover:bg-red-700 transition duration-300"
@@ -68,49 +108,42 @@ import gql from 'graphql-tag';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '../../../../stores/userStore';
+import { parseISO, formatISO } from 'date-fns';
 
 const route = useRoute();
 const { user } = useUserStore();
 const showTicketModal = ref(false);
-const isProcessing = ref(false);  // Tracks payment processing
-const isPaymentSuccessful = ref(false); // Tracks payment success
 const ticketId = ref("");
+const payment_method = ref("");
+const cardNumber = ref('');
+const cvv = ref('');
 const movieTitle = ref(route.query.title || "Unknown Movie");
 const selectedTheater = ref(route.query.theater || "Unknown Theater");
 const selectedTime = ref(route.query.time || "Unknown Time");
 const totalPrice = ref(parseFloat(route.query.totalPrice || 0));
 const ticketQuantity = ref(parseFloat(route.query.ticketQuantity || 0));
 
-// GraphQL Mutation for Chapa Payment
-const PAYMENT_HANDLER_MUTATION = gql`
-  mutation MyMutation($phoneNumber: String!, $amount: String!) {
-    paymentHandler(arg1: { phoneNumber: $phoneNumber, amount: $amount }) {
-      checkoutUrl
-      message
-      tx_ref
-    }
-  }
-`;
-
-// GraphQL Mutation for Checkout Data
+// Define the GraphQL mutation
 const INSERT_CHECKOUT_MUTATION = gql`
   mutation InsertCheckout(
     $CVV: String!
+    $card_number: Int!
     $cinema: String!
     $movie: String!
     $payment_method: String!
     $showtime: timestamptz!
-    $totalPrice: Int!
+    $totalPrice:Int!
     $user_id: uuid!
   ) {
     insert_checkout_one(
       object: {
         CVV: $CVV
+        card_number: $card_number
         cinema: $cinema
         movie: $movie
         payment_method: $payment_method
         showtime: $showtime
-        totalPrice: $totalPrice
+        totalPrice:$totalPrice
         user_id: $user_id
       }
     ) {
@@ -121,72 +154,52 @@ const INSERT_CHECKOUT_MUTATION = gql`
 
 const token = localStorage.getItem("authToken");
 
-// Mutations
-const { mutate: paymentHandler } = useMutation(PAYMENT_HANDLER_MUTATION, {
-  context: {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : ''
-    },
-  },
-});
-
 const { mutate: insertCheckout } = useMutation(INSERT_CHECKOUT_MUTATION, {
-  context: {
+   context: {
     headers: {
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : ''
+      'Content-Type': 'application/json', // Specify content type if necessary
+      Authorization: token ? `Bearer ${token}` : '' // Include Authorization header if token exists
     },
   },
 });
 
-// Handle Checkout Process
 async function handleCheckout() {
   try {
     if (!user?.user_id) {
       console.error("User ID not found. Please log in.");
       return;
     }
+    console.log("User ID found:", user.user_id);
 
-    isProcessing.value = true;
-
-    const dummyPhoneNumber = "0943438385"; // Use your dummy number
-    const paymentVariables = {
-      phoneNumber: dummyPhoneNumber,
-      amount: totalPrice.value.toString()
+    const showtimeISO = formatISO(parseISO(selectedTime.value));
+    const variables = {
+      CVV: cvv.value,
+       totalPrice: totalPrice.value,
+      card_number: parseInt(cardNumber.value, 10),
+      cinema: selectedTheater.value,
+      movie: movieTitle.value,
+      payment_method: payment_method.value,
+      showtime: showtimeISO,
+      user_id: user.user_id
     };
 
-    const paymentResponse = await paymentHandler(paymentVariables);
-    console.log("Chapa payment response:", paymentResponse);
+    console.log("Variables for mutation:", variables);
+console.log("kkkkkkkkkkkkkkkkkkkkkkkk totalPrice",variables.totalPrice);
 
-    const checkoutUrl = paymentResponse.data.paymentHandler.checkoutUrl;
+    const { data } = await insertCheckout(variables);
+    console.log("Checkout data:", data);
 
-    if (checkoutUrl) {
-      const checkoutVariables = {
-        CVV: "123",
-        cinema: selectedTheater.value,
-        movie: movieTitle.value,
-        payment_method: "Chapa",
-        showtime: new Date(selectedTime.value).toISOString(),
-        totalPrice: totalPrice.value,
-        user_id: user.user_id,
-      };
+    ticketId.value = data.insert_checkout_one.checkout_id;
+    console.log("Checkout ID is", ticketId.value);
 
-      const checkoutResponse = await insertCheckout(checkoutVariables);
-      console.log("Checkout data saved:", checkoutResponse);
+    cardNumber.value = '';
+    cvv.value = '';
+    payment_method.value = '';
 
-      window.location.href = checkoutUrl;
-    } else {
-      console.error("Checkout URL not found.");
-      alert("Checkout URL not found.");
-    }
-
-    isProcessing.value = false;
+    showTicketModal.value = true;
 
   } catch (error) {
     console.error("Checkout error:", error);
-    isProcessing.value = false;
-    alert("An error occurred during the checkout process. Please try again.");
   }
 }
 </script>

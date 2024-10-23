@@ -1,33 +1,57 @@
 <template>
-  <nav class="bg-gray-800 fixed top-0 left-0 w-full z-50 p-4 flex items-center justify-between shadow-sm dark:shadow-none">
-    <!-- Home Link on the Left -->
-    <nuxt-link to="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+  <nav class="bg-gray-900 fixed top-0 left-0 w-full z-50 p-4 flex items-center justify-between shadow-sm dark:shadow-none border-b border-gray-700">
+    <button 
+      class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer" 
+      @click="reloadPage"
+    >
       <span class="self-center text-2xl font-semibold whitespace-nowrap text-white">MovieVerse</span>
-    </nuxt-link>
-    
-    <!-- Favorite Movies Link and Profile Avatar on the Right -->
+    </button>
     <div class="flex items-center space-x-4 ml-auto">
-        <nuxt-link to="/bookmark" class="px-5 mr-5 text-white text-lg font-semibold">
-          Favorites
-        </nuxt-link>
-      <!-- userRole <nuxt-link to="/bookmark" class=" px-5 mr-5 text-white text-lg font-semibold">
-        Favorites
-      </nuxt-link> -->
+          <!-- bookmarks -->
+<div v-if="userRole !== 'admin'">
+  <button @click="toggleFavoritesDropdown" class="px-5 mr-5 text-white text-lg font-semibold">
+    All Bookmarks
+  </button>
+</div>
+
+      <div v-if="isFavoritesDropdownOpen" class="relative">
+        <div
+          class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-20"
+        >
+          <div class="p-4">
+            <!-- <h2 class="text-gray-900 dark:text-white text-lg">My Bookmarked Movies:</h2> -->
+            <div v-if="loading">
+              <p class="text-gray-700 dark:text-gray-300">Loading...</p>
+            </div>
+            <ul v-else>
+              <li v-if="!bookmarks.length" class="text-gray-700 dark:text-gray-300">No bookmarks found.</li>
+              <li v-for="bookmark in bookmarks" :key="bookmark.bookmark_id" class="text-gray-700 dark:text-gray-300">
+                {{ bookmark.movie }} - {{ bookmark.schedule_id }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div class="relative group">
         <img
           src="@/assets/img/profile.jpg"
           alt="Profile Avatar"
           class="w-10 h-10 rounded-full object-cover cursor-pointer"
-          @click="toggleDropdown"
+          @click="toggleUserDropdown"
         />
        
-        <!-- Dropdown Menu -->
         <div
-          v-if="isDropdownOpen"
+          v-if="isUserDropdownOpen"
           class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-20"
         >
           <div class="p-4">
-            <p class="text-gray-900 dark:text-white text-lg">{{ userRole }}</p>
+            <nuxt-link :to="{ name: 'user', params: { userId: getUserId() } }" class="text-gray-900 dark:text-white text-lg">
+              <button @click="toggleUserDropdown"> {{ userRole }}</button>
+ 
+</nuxt-link>
+
+            <!-- <nuxt-link to="/user" class="text-gray-900 dark:text-white text-lg">{{ userRole }}</nuxt-link> -->
           </div>
           <div class="border-t border-gray-200 dark:border-gray-600">
             <button
@@ -43,178 +67,118 @@
   </nav>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/authStore'; // Adjust path if necessary
-import { useUserStore } from '@/stores/userStore'; // Adjust path if necessary
+import { useAuthStore } from '@/stores/authStore';
+import { useUserStore } from '@/stores/userStore';
 import { useRouter } from 'vue-router';
+import { useQuery } from '@vue/apollo-composable';
+import gql from 'graphql-tag';
 
-// Use auth store, user store, and router
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const router = useRouter();
 
-// Reactive variables for user data
 const avatarUrl = ref('');
 const userRole = ref('');
-const isDropdownOpen = ref(false);
+const isUserDropdownOpen = ref(false);
+const isFavoritesDropdownOpen = ref(false);
+const bookmarks = ref([]);
+const loading = ref(false); // Loading state
+
+// Function to get user_id from localStorage
+const getUserId = () => {
+  const userJson = localStorage.getItem("user");
+  const userData = userJson ? JSON.parse(userJson) : null;
+  return userData ? userData.user_id : null;
+};
+
+// GraphQL query to fetch bookmarks
+const GET_BOOKMARKS = gql`
+  query MyQuery {
+    bookmark(where: { user_id: { _eq: "${getUserId()}" } }) {
+      user_id
+      movie
+      bookmark_id
+      created_at
+      schedule_id
+    }
+  }
+`;
+// Function to get the auth token from localStorage
+const getAuthToken = () => {
+  return localStorage.getItem("authToken");
+};
+
+// Fetch bookmarks function
+const fetchBookmarks = async () => {
+  loading.value = true; // Set loading to true
+   const token = getAuthToken(); // Get the auth token
+  const { result, error } = await useQuery(GET_BOOKMARKS, { userId: getUserId() }, {
+    context: {
+      headers: {
+        'Content-Type': 'application/json', // Specify content type if necessary
+        Authorization: token ? `Bearer ${token}` : '' // Include Authorization header if token exists
+      },
+    },
+  });
+  loading.value = false; // Set loading to false once done
+  if (error.value) {
+    console.error('Error fetching bookmarks:', error.value);
+    return [];
+  }
+  return result.value.bookmark || [];
+};
 
 // Fetch user data when the component is mounted
-onMounted(() => {
-  const user = userStore.user; // Get user from userStore
+onMounted(async () => {
+  const user = userStore.user; 
   if (user) {
-    avatarUrl.value = user.avatarUrl || '@/assets/img/me.jpg'; // Use a default image if none is provided
+    avatarUrl.value = user.avatarUrl || '@/assets/img/me.jpg'; 
     userRole.value = user.role;
   }
-
 });
 
 // Function to handle logout
 const logout = async () => {
-  // Clear the authentication token
   authStore.clearAuth();
-
-  // Clear user-related data
   userStore.clearUserData();
-
-  // Redirect to login page or home page
   router.push('/login');
 };
 
-// Function to toggle dropdown visibility
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value;
+// Toggle favorites dropdown and fetch bookmarks if opening
+const toggleFavoritesDropdown = async () => {
+  if (!isFavoritesDropdownOpen.value) {
+    bookmarks.value = await fetchBookmarks(); // Fetch bookmarks when opening dropdown
+  }
+  isFavoritesDropdownOpen.value = !isFavoritesDropdownOpen.value;
 };
 
-// Close the dropdown when clicking outside
+const toggleUserDropdown = () => {
+  isUserDropdownOpen.value = !isUserDropdownOpen.value;
+};
+
+// Close dropdowns when clicking outside
 document.addEventListener('click', (event) => {
   if (!event.target.closest('nav')) {
-    isDropdownOpen.value = false;
+    isUserDropdownOpen.value = false;
+    isFavoritesDropdownOpen.value = false;
   }
 });
+
+// Reload the page
+const reloadPage = () => {
+  console.log("Button clicked, redirecting to home...");
+  window.location.href = '/';
+};
+
 </script>
 
 <style scoped>
-/* Adds a subtle drop shadow to the navbar */
 nav {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* Ensures the avatar image is styled properly */
 img {
   cursor: pointer;
 }
-
-/* Dropdown menu styles */
-.group-hover\:opacity-100 {
-  opacity: 1 !important;
-}
-
-.group-hover\:opacity-0 {
-  opacity: 0 !important;
-}
-
-/* Adjust dropdown position */
-.relative {
-  position: relative;
-}
-
-/* Dropdown menu */
-.dropdown {
-  display: none;
-}
-
-.dropdown-open {
-  display: block;
-}
-
-.dropdown-menu {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  margin-top: 0.5rem;
-  width: 12rem;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.dropdown-menu.show {
-  display: block;
-}
-
-.dropdown-item {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  color: #333;
-  text-decoration: none;
-  display: block;
-}
-
-.dropdown-item:hover {
-  background-color: #f1f1f1;
-}
 </style>
-
-
-<!-- <script setup>
-import { ref, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/authStore'; // Adjust path if necessary
-import { useUserStore } from '@/stores/userStore'; // Adjust path if necessary
-import { useRouter } from 'vue-router';
-
-// Use auth store, user store, and router
-const authStore = useAuthStore();
-const userStore = useUserStore();
-const router = useRouter();
-
-// Reactive variables for user data
-const avatarUrl = ref('');
-const userRole = ref('');
-
-// Fetch user data when the component is mounted
-onMounted(() => {
-  const user = userStore.user; // Get user from userStore
-  if (user) {
-    avatarUrl.value = user.avatarUrl || '@/assets/img/me.jpg'; // Use a default image if none is provided
-    userRole.value = user.role;
-  }
-});
-
-// Function to handle logout
-const logout = async () => {
-  // Clear the authentication token
-  authStore.clearAuth();
-
-  // Clear user-related data
-  userStore.clearUserData();
-
-  // Redirect to login page or home page
-  router.push('/login');
-};
-</script>
-
-<style scoped>
-/* Adds a subtle drop shadow to the navbar */
-nav {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Ensures the avatar image is styled properly */
-
-
-/* Tooltip styles */
-.group-hover\:opacity-100 {
-  opacity: 1 !important;
-}
-
-.group-hover\:opacity-0 {
-  opacity: 0 !important;
-}
-</style> -->
-
-
- 

@@ -163,6 +163,8 @@ definePageMeta({
   layout: 'admin'
 })
 import { ref, computed } from 'vue';
+const token = localStorage.getItem("authToken");
+
 // Define the GraphQL queries and mutations
 const GET_STARS_QUERY = gql`
   query GetStars {
@@ -199,8 +201,16 @@ const starToDelete = ref(null); // For storing the director to be deleted
 
 
 
-const { result, loading, error } = useQuery(GET_STARS_QUERY);
-
+// const { result, loading, error } = useQuery(GET_STARS_QUERY);
+ const { result, loading, error  } = useQuery(GET_STARS_QUERY, {}, {
+    fetchPolicy: 'network-only',
+    context: {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ? `Bearer ${token}` : ''
+      },
+    },
+  });
 const stars = ref([]);
 
 // Watch for changes in the query result and update local state
@@ -229,7 +239,15 @@ const handleSubmit = async () => {
     },
   };
 
-  const { mutate } = useMutation(INSERT_STAR_MUTATION);
+  // const { mutate } = useMutation(INSERT_STAR_MUTATION);
+  const { mutate } = useMutation(INSERT_STAR_MUTATION, {
+  context: {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token ? `Bearer ${token}` : ''
+    },
+  },
+});
 
   try {
     const { data } = await mutate(variables);
@@ -245,8 +263,15 @@ console.log("hhhhhhhhhhhh",data);
 
 // Handle director deletion
 const handleDelete = async () => {
-  const { mutate } = useMutation(DELETE_STAR_MUTATION);
-
+ // const { mutate } = useMutation(DELETE_STAR_MUTATION);
+const { mutate } = useMutation(DELETE_STAR_MUTATION, {
+  context: {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token ? `Bearer ${token}` : ''
+    },
+  },
+});
   try {
     if (starToDelete.value) {
      const  variables={ star_id: starToDelete.value }

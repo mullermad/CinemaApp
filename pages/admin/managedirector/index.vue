@@ -164,6 +164,7 @@ definePageMeta({
   layout: 'admin'
 })
 import { ref, computed, watch } from 'vue';
+const token = localStorage.getItem("authToken");
 
 // Define the GraphQL queries and mutations
 const GET_DIRECTORS_QUERY = gql`
@@ -199,8 +200,16 @@ const showModal = ref(false);
 const directorToDelete = ref(null); // For storing the director to be deleted
 
 // Use the useQuery hook to fetch directors
-const { result, loading, error } = useQuery(GET_DIRECTORS_QUERY);
-
+//const { result, loading, error } = useQuery(GET_DIRECTORS_QUERY,{}, { fetchPolicy: 'network-only' });
+ const { result, loading, error  } = useQuery(GET_DIRECTORS_QUERY, {}, {
+    fetchPolicy: 'network-only',
+    context: {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ? `Bearer ${token}` : ''
+      },
+    },
+  });
 const directors = ref([]);
 
 // Watch for changes in the query result and update local state
@@ -229,8 +238,15 @@ const handleSubmit = async () => {
     },
   };
 
-  const { mutate } = useMutation(INSERT_DIRECTOR_MUTATION);
-
+  //const { mutate } = useMutation(INSERT_DIRECTOR_MUTATION);
+const { mutate } = useMutation(INSERT_DIRECTOR_MUTATION, {
+  context: {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token ? `Bearer ${token}` : ''
+    },
+  },
+});
   try {
     const { data } = await mutate(variables);
     const directorId = data.insert_director_one.director_id;
@@ -245,8 +261,15 @@ console.log("hhhhhhhhhhhh",data);
 
 // Handle director deletion
 const handleDelete = async () => {
-  const { mutate } = useMutation(DELETE_DIRECTOR_MUTATION);
-
+  //const { mutate } = useMutation(DELETE_DIRECTOR_MUTATION);
+const { mutate } = useMutation(DELETE_DIRECTOR_MUTATION, {
+  context: {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token ? `Bearer ${token}` : ''
+    },
+  },
+});
   try {
     if (directorToDelete.value) {
      const  variables={ director_id: directorToDelete.value }
@@ -290,226 +313,4 @@ const confirmDelete = () => {
   handleDelete();
 };
 </script>
-
-<!-- <script setup>
-definePageMeta({
-  layout: 'admin'
-})
-import { ref, computed } from 'vue';
-
-
-// Define the GraphQL query
-const GET_DIRECTORS_QUERY = gql`
-  query GetDirectors {
-    director {
-      director_id
-      name
-    }
-  }
-`;
-
-// Define the GraphQL mutation
-const INSERT_DIRECTOR_MUTATION = gql`
-  mutation InsertDirector($object: director_insert_input!) {
-    insert_director_one(object: $object) {
-      director_id
-    }
-  }
-`;
-
-// States
-const showForm = ref(false);
-const newDirectorName = ref('');
-const showModal = ref(false);
-
-// Use the useQuery hook to fetch directors
-const { result, loading, error } = useQuery(GET_DIRECTORS_QUERY);
-
-const directors = ref([]);
-
-// Watch for changes in the query result and update local state
-watch(
-  () => result.value?.director,
-  (newDirectors) => {
-    if (newDirectors) {
-      directors.value = newDirectors.map(director => ({
-        id: director.director_id,
-        name: director.name
-      }));
-    }
-  }
-);
-
-// Toggle form visibility
-const toggleForm = () => {
-  showForm.value = !showForm.value;
-};
-
-// Handle form submission
-const handleSubmit = async () => {
-  // Prepare variables to be passed to the mutation
-  const variables = {
-    object: {
-      name: newDirectorName.value,
-    },
-  };
-
-  console.log("variables are ", variables);
-
-  // Initialize the mutation
-  const { mutate } = useMutation(INSERT_DIRECTOR_MUTATION);
-
-  try {
-    // Execute the mutation with the variables
-    const { data } = await mutate( variables );
-    const directorId = data.insert_director_one.director_id;
-
-    console.log('New Director ID:', directorId);
-
-    // Optionally, update the local state or UI
-    directors.value.push({ id: directorId, name: newDirectorName.value });
-    newDirectorName.value = ''; // Clear input field
-
-  } catch (err) {
-    console.error('Mutation error:', err);
-  }
-};
-
-// Paginate directors
-const itemsPerPage = 5;
-const currentPage = ref(1);
-const indexOfLastItem = computed(() => currentPage.value * itemsPerPage);
-const indexOfFirstItem = computed(() => indexOfLastItem.value - itemsPerPage);
-const paginatedDirectors = computed(() =>
-  directors.value.slice(indexOfFirstItem.value, indexOfLastItem.value)
-);
-const totalPages = computed(() => Math.ceil(directors.value.length / itemsPerPage));
-
-// Handle pagination
-const paginate = (pageNumber) => {
-  if (pageNumber >= 1 && pageNumber <= totalPages.value) {
-    currentPage.value = pageNumber;
-  }
-};
-
-// Show delete modal
-const showDeleteModal = (id) => {
-  // Set the director to be deleted
-  showModal.value = true;
-};
-
-// Confirm deletion
-const confirmDelete = () => {
-  // Implement the deletion logic here
-  showModal.value = false;
-};
-</script> -->
-
-<!-- <script setup>
-import { ref, computed } from 'vue';
-
-
-// Define the GraphQL mutation
-const INSERT_DIRECTOR_MUTATION = gql`
-  mutation InsertDirector($object: director_insert_input!) {
-    insert_director_one(object: $object) {
-      director_id
-    }
-  }
-`;
-
-// States
-const showForm = ref(false);
-const newDirectorName = ref('');
-const showModal = ref(false);
-const directors = ref([
-  { id: 1, name: 'Steven Spielberg' },
-  { id: 2, name: 'Christopher Nolan' },
-  { id: 3, name: 'Martin Scorsese' },
-  { id: 4, name: 'Quentin Tarantino' },
-  { id: 5, name: 'James Cameron' },
-]);
-
-// Toggle form visibility
-const toggleForm = () => {
-  showForm.value = !showForm.value;
-};
-
-// Handle form submission
-const handleSubmit = async () => {
-  // Prepare variables to be passed to the mutation
-  const variables = {
-    object: {
-      name: newDirectorName.value,
-    },
-  };
-
-  console.log("variables are ", variables);
-
-  // Initialize the mutation
-  const { mutate } = useMutation(INSERT_DIRECTOR_MUTATION);
-
-
- 
-  try {
-    // Execute the mutation with the variables
-    // const { data } = await mutate({ variables });
-    const { data } = await mutate(variables);
-    // const directorId = data.insert_director_one.director_id;
-
-    console.log('Diretor are :', data);
-
-    // Optionally, update the local state or UI
-    // directors.value.push({ id: directorId, name: newDirectorName.value });
-    newDirectorName.value = ''; // Clear input field
-
-  } catch (err) {
-    console.error('Mutation error:', err);
-  }
-};
-
-// Paginate directors
-const itemsPerPage = 5;
-const currentPage = ref(1);
-const indexOfLastItem = computed(() => currentPage.value * itemsPerPage);
-const indexOfFirstItem = computed(() => indexOfLastItem.value - itemsPerPage);
-const paginatedDirectors = computed(() =>
-  directors.value.slice(indexOfFirstItem.value, indexOfLastItem.value)
-);
-const totalPages = computed(() => Math.ceil(directors.value.length / itemsPerPage));
-
-// Handle pagination
-const paginate = (pageNumber) => {
-  if (pageNumber >= 1 && pageNumber <= totalPages.value) {
-    currentPage.value = pageNumber;
-  }
-};
-
-// Show delete modal
-const showDeleteModal = (id) => {
-  // Set the director to be deleted
-  showModal.value = true;
-};
-
-// Confirm deletion
-const confirmDelete = () => {
-  // Implement the deletion logic here
-  showModal.value = false;
-};
-</script>
-
- -->
-
-
-
-
-
-
-
-
-
-
-
-
-
 

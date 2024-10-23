@@ -22,8 +22,17 @@ export default defineNuxtConfig({
   apollo: {
     clients: {
       default: {
-        httpEndpoint: "https://hasuraapp.hasura.app/v1/graphql",
+        // httpEndpoint: "https://hasuraapp.hasura.app/v1/graphql",
+        httpEndpoint: "http://localhost:8080/v1/graphql",
         autoImports: true,
+        httpLinkOptions: {
+          headers: {
+            Authorization: process.client
+              ? `Bearer ${localStorage.getItem("authToken")}`
+              : "",
+            "Content-Type": "application/json",
+          },
+        },
       },
     },
   },

@@ -118,7 +118,6 @@
   <ErrorMessage name="confirmPassword" class="text-red-500 text-sm italic" />
 </div>
 
-
         <div>
           <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4" :disabled="isSubmitting">
             Sign Up
@@ -185,12 +184,20 @@ const onSubmit = handleSubmit(async (values) => {
   };
 
   // Initialize the mutation
-  const { mutate } = useMutation(SIGNUP_MUTATION,{variables});
-
+  // const { mutate } = useMutation(SIGNUP_MUTATION,{variables});
+// Initialize the mutation with the headers
+  const { mutate } = useMutation(SIGNUP_MUTATION, {
+    variables,
+    context: {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  });
   try {
+    console.log(variables);
     // Execute the mutation with the variables
     const { data } = await mutate();
-
     console.log('Mutation response:', data);
 
     // Redirect to the login page after successful signup

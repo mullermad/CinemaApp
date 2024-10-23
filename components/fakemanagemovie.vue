@@ -6,34 +6,19 @@
 
         <!-- Movie List -->
         <div class="space-y-4">
-          <div
-            v-for="movie in paginatedMovies"
-            :key="movie.movie_id"
-            class="flex justify-between items-center p-4 bg-gray-700 rounded-lg"
-          >
+          <div v-for="movie in paginatedMovies" :key="movie.movie_id" class="flex justify-between items-center p-4 bg-gray-700 rounded-lg">
             <div>
               <h2 class="text-lg text-white">{{ movie.title }}</h2>
-              <p class="text-gray-400">
-                Genre: {{ movie.genre.name }} | Director: {{ movie.director ? movie.director.name : 'Unknown' }}
-              </p>
+              <p class="text-gray-400">Genre: {{ movie.genre.name }} | Director: {{ movie.director ? movie.director.name : 'Unknown' }}</p>
               <p class="text-gray-400">Stars: {{ movie.stars }}</p>
             </div>
-            <button
-              @click="confirmDelete(movie.movie_id)"
-              class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
-              Delete
-            </button>
+            <button @click="handleDelete(movie.movie_id)" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Delete</button>
           </div>
         </div>
 
         <!-- Pagination Controls -->
         <div class="flex justify-between items-center mt-4">
-          <button
-            @click="previousPage"
-            :disabled="currentPage === 1"
-            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
+          <button @click="previousPage" :disabled="currentPage === 1" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
             Previous
           </button>
           <div class="flex items-center">
@@ -49,37 +34,9 @@
               </button>
             </div>
           </div>
-          <button
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
             Next
           </button>
-        </div>
-      </div>
-
-
-
-         <!-- Delete Confirmation Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full">
-          <h3 class="text-lg font-semibold mb-4">Confirm Deletion</h3>
-          <p class="text-gray-700 mb-6">Are you sure you want to delete the movie "{{ selectedMovie.title }}"? This action cannot be undone.</p>
-          <div class="flex justify-end space-x-4">
-            <button
-              @click="closeModal"
-              class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              @click="handleDelete(selectedMovie.movie_id)"
-              class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
-              Confirm
-            </button>
-          </div>
         </div>
       </div>
     </main>
@@ -122,21 +79,8 @@ const DELETE_MOVIE_MUTATION = gql`
   }
 `;
 
-// Fetch movies using the query
 const { result, loading, error, refetch } = useQuery(GET_MOVIES_QUERY);
-
-// Replace with the actual token retrieval logic
-const token = localStorage.getItem("authToken");
-
-// Define the deleteMovie mutation with context
-const deleteMovie = useMutation(DELETE_MOVIE_MUTATION, {
-  context: {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : ''
-    }
-  }
-});
+const deleteMovie = useMutation(DELETE_MOVIE_MUTATION);
 
 const currentPage = ref(1);
 const itemsPerPage = 5; // Number of movies per page
@@ -157,27 +101,14 @@ const totalPagesArray = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
 
-// Confirm deletion of a movie
-const confirmDelete = (movie_id) => {
-  if (confirm("Are you sure you want to delete this movie? This action cannot be undone.")) {
-    handleDelete(movie_id);
-  }
-};
-
 // Handle deletion of a movie
 const handleDelete = async (movie_id) => {
-  const { mutate } = deleteMovie; // Get the mutate function
   try {
-    const variables = { movie_id }; // Prepare variables for mutation
-    const { data } = await mutate(variables); // Execute mutation
-    const deletedMovieId = data.delete_movie_by_pk.movie_id; // Get the deleted movie ID
-    console.log('Deleted movie ID:', deletedMovieId);
-    
-    // Refetch movies to update the list after deletion
-    refetch();
+    await deleteMovie({ variables: { movie_id } });
     alert(`Movie deleted successfully`);
-  } catch (err) {
-    console.error('Error deleting movie:', err);
+    refetch(); // Refetch movies to update the list after deletion
+  } catch (e) {
+    console.error('Error deleting movie:', e);
     alert('Failed to delete movie');
   }
 };
