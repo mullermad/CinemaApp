@@ -6,11 +6,8 @@
 
         <!-- Movie List -->
         <div class="space-y-4">
-          <div
-            v-for="movie in paginatedMovies"
-            :key="movie.movie_id"
-            class="flex justify-between items-center p-4 bg-gray-700 rounded-lg"
-          >
+          <div v-for="movie in paginatedMovies" :key="movie.movie_id"
+            class="flex justify-between items-center p-4 bg-gray-700 rounded-lg">
             <div>
               <h2 class="text-lg text-white">{{ movie.title }}</h2>
               <p class="text-gray-400">
@@ -18,10 +15,8 @@
               </p>
               <p class="text-gray-400">Stars: {{ movie.stars }}</p>
             </div>
-            <button
-              @click="confirmDelete(movie.movie_id)"
-              class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
+            <button @click="confirmDelete(movie.movie_id)"
+              class="delete-movie bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
               Delete
             </button>
           </div>
@@ -29,31 +24,22 @@
 
         <!-- Pagination Controls -->
         <div class="flex justify-between items-center mt-4">
-          <button
-            @click="previousPage"
-            :disabled="currentPage === 1"
-            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
+          <button @click="previousPage" :disabled="currentPage === 1"
+            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
             Previous
           </button>
           <div class="flex items-center">
             <span class="text-white">Page {{ currentPage }} of {{ totalPages }}</span>
             <div class="flex mx-2">
-              <button
-                v-for="page in totalPagesArray"
-                :key="page"
+              <button v-for="page in totalPagesArray" :key="page"
                 :class="['mx-1', currentPage === page ? 'bg-blue-600' : 'bg-blue-500', 'text-white px-3 py-1 rounded-lg hover:bg-blue-600']"
-                @click="setPage(page)"
-              >
+                @click="setPage(page)">
                 {{ page }}
               </button>
             </div>
           </div>
-          <button
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
+          <button @click="nextPage" :disabled="currentPage === totalPages"
+            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
             Next
           </button>
         </div>
@@ -61,22 +47,18 @@
 
 
 
-         <!-- Delete Confirmation Modal -->
+      <!-- Delete Confirmation Modal -->
       <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
         <div class="bg-white rounded-lg p-6 max-w-md w-full">
           <h3 class="text-lg font-semibold mb-4">Confirm Deletion</h3>
-          <p class="text-gray-700 mb-6">Are you sure you want to delete the movie "{{ selectedMovie.title }}"? This action cannot be undone.</p>
+          <p class="text-gray-700 mb-6">Are you sure you want to delete the movie "{{ selectedMovie.title }}"? This
+            action cannot be undone.</p>
           <div class="flex justify-end space-x-4">
-            <button
-              @click="closeModal"
-              class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-            >
+            <button @click="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
               Cancel
             </button>
-            <button
-              @click="handleDelete(selectedMovie.movie_id)"
-              class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
+            <button @click="handleDelete(selectedMovie.movie_id)"
+              class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
               Confirm
             </button>
           </div>
@@ -172,7 +154,7 @@ const handleDelete = async (movie_id) => {
     const { data } = await mutate(variables); // Execute mutation
     const deletedMovieId = data.delete_movie_by_pk.movie_id; // Get the deleted movie ID
     console.log('Deleted movie ID:', deletedMovieId);
-    
+
     // Refetch movies to update the list after deletion
     refetch();
     alert(`Movie deleted successfully`);

@@ -7,17 +7,14 @@
         <p class="text-xl text-white">{{ movie.description }}</p>
       </div>
 
-      <div class="text-center mb-12">
-        <h1 class="text-2xl font-bold text-white">Theatres List</h1>
+      <div class="theators-list text-center mb-12">
+        <h1 class=" text-2xl font-bold text-white">Theatres List</h1>
       </div>
 
       <!-- Theater List -->
       <div v-if="theaters.length > 0">
-        <div
-          v-for="theater in theaters"
-          :key="theater.name"
-          class="bg-gray-800 shadow-xl rounded-lg p-6 mb-8 max-w-4xl mx-auto"
-        >
+        <div v-for="theater in theaters" :key="theater.name"
+          class="bg-gray-800 shadow-xl rounded-lg p-6 mb-8 max-w-4xl mx-auto">
           <!-- Theater Name -->
           <h2 class="text-3xl font-semibold text-white mb-2">{{ theater.name }}</h2>
 
@@ -27,23 +24,19 @@
           </div>
 
           <!-- Showtimes -->
-          <div v-if="theater.showtimes.length" class="flex flex-wrap justify-between gap-3 mb-6">
-            <nuxt-link
-              v-for="time in theater.showtimes"
-              :key="time"
-              :to="{ 
-                path: '/teatorslist/selectseats', 
-                query: { 
-                  title: movie.title, 
-                  theater: theater.name, 
-                  time 
-                } 
-              }"
-              class="px-6 py-3 bg-red-600 text-white rounded-full hover:bg-gray-900 transition duration-300"
-            >
-              {{ formatTime(time) }}
+          <div v-if="theater.showtimes.length" class="showtime flex flex-wrap justify-between gap-3 mb-6">
+            <nuxt-link data-cy="formatted-showtime" v-for="time in theater.showtimes" :key="time" :to="{
+              path: '/teatorslist/selectseats',
+              query: {
+                title: movie.title,
+                theater: theater.name,
+                time
+              }
+            }" class="px-6 py-3 bg-red-600 text-white rounded-full hover:bg-gray-900 transition duration-300">
+              <h3 class="formatted-showtime">{{ formatTime(time) }}</h3>
             </nuxt-link>
-            <button @click="showBookmarkModal = true" class="px-6 py-3 bg-gray-700 rounded-lg text-white font-semibold hover:bg-gray-700 transition duration-300">
+            <button @click="showBookmarkModal = true"
+              class="favourite-button px-6 py-3 bg-gray-700 rounded-lg text-white font-semibold hover:bg-gray-700 transition duration-300">
               <i class="fas fa-heart mr-2"></i> Add to Favorites
             </button>
           </div>

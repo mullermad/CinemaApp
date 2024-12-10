@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <div class="relative group">
+      <div class="user-icon relative group">
         <img
           src="@/assets/img/profile.jpg"
           alt="Profile Avatar"
@@ -56,7 +56,7 @@
           <div class="border-t border-gray-200 dark:border-gray-600">
             <button
               @click="logout"
-              class="w-full text-gray-900 dark:text-white bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-b-lg px-4 py-2 text-left transition-colors duration-200"
+              class="logout-btn w-full text-gray-900 dark:text-white bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-b-lg px-4 py-2 text-left transition-colors duration-200"
             >
               Logout
             </button>

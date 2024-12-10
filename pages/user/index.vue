@@ -1,85 +1,75 @@
 <template>
-  <div class="user-info bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
+  <section class="bg-gray-800">
+  <div class="user-info bg-gray-800 p-6 rounded-lg shadow-md max-w-2xl mx-auto">
     <!-- User Information Section -->
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">User Information</h2>
+    <h2 class="text-2xl font-bold mb-6 text-gray-200">User Information</h2>
 
     <!-- Show loading while waiting or if no data after timeout -->
     <div v-if="userLoading">
-      <p v-if="!errorMessage">Loading user information...</p>
-      <p v-else>{{ errorMessage }}</p>
+      <p v-if="!errorMessage" class="text-gray-300">Loading user information...</p>
+      <p v-else class="text-red-400">{{ errorMessage }}</p>
     </div>
 
     <!-- Display user data when loaded -->
     <div v-else class="bg-white rounded-lg shadow-md p-6 mb-6">
-  <h2 class="text-2xl font-bold mb-4 text-gray-800">User Information</h2>
+      <h2 class="text-2xl font-bold mb-4 text-gray-800">User Information</h2>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <div class="bg-gray-50 p-4 rounded-lg shadow">
-      <label class="block text-gray-600 font-semibold">Username:</label>
-      <p class="text-gray-800 text-lg">{{ user.username }}</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-gray-50 p-4 rounded-lg shadow">
+          <label class="block text-gray-600 font-semibold">Username:</label>
+          <p class="text-gray-800 text-lg">{{ user.username }}</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg shadow">
+          <label class="block text-gray-600 font-semibold">Email:</label>
+          <p class="text-gray-800 text-lg">{{ user.email }}</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg shadow col-span-1 sm:col-span-2">
+          <label class="block text-gray-600 font-semibold">Role:</label>
+          <p class="text-gray-800 text-lg">{{ user.role }}</p>
+        </div>
+      </div>
     </div>
-
-    <div class="bg-gray-50 p-4 rounded-lg shadow">
-      <label class="block text-gray-600 font-semibold">Email:</label>
-      <p class="text-gray-800 text-lg">{{ user.email }}</p>
-    </div>
-
-    <div class="bg-gray-50 p-4 rounded-lg shadow col-span-1 sm:col-span-2">
-      <label class="block text-gray-600 font-semibold">Role:</label>
-      <p class="text-gray-800 text-lg">{{ user.role }}</p>
-    </div>
-  </div>
-
-</div>
-
 
     <!-- Ticket Information Section -->
-    <h2 class="text-2xl font-bold mb-6 text-gray-800 mt-6">Purchased Tickets</h2>
+    <h2 class="text-2xl font-bold mb-6 text-gray-200 mt-6">Purchased Tickets</h2>
 
     <!-- Show loading while fetching tickets or no data after timeout -->
     <div v-if="ticketLoading">
-      <p v-if="!ticketErrorMessage">Loading tickets...</p>
-      <p v-else>{{ ticketErrorMessage }}</p>
+      <p v-if="!ticketErrorMessage" class="text-gray-300">Loading tickets...</p>
+      <p v-else class="text-red-400">{{ ticketErrorMessage }}</p>
     </div>
 
-<!-- Display tickets data when loaded -->
-<div v-else-if="tickets.length > 0" class="space-y-6 mt-6">
-  <div
-    v-for="ticket in tickets"
-    :key="ticket.showtime"
-    class="ticket-info bg-white border border-gray-300 rounded-lg shadow-md p-6 flex flex-col relative"
-  >
+    <!-- Display tickets data when loaded -->
+    <div v-else-if="tickets.length > 0" class="space-y-6 mt-6">
+      <div
+        v-for="ticket in tickets"
+        :key="ticket.showtime"
+        class="ticket-info bg-white border border-gray-300 rounded-lg shadow-md p-6 flex flex-col relative"
+      >
+        <div class="flex justify-between items-center">
+          <h3 class="text-xl font-semibold text-gray-800">{{ ticket.movie }}</h3>
+          <span class="text-sm bg-gray-200 text-gray-700 rounded-full px-3 py-1">Ticket</span>
+        </div>
 
-    <div class="flex justify-between items-center">
-
-      <h3 class="text-xl font-semibold text-gray-800">{{ ticket.movie }}</h3>
-      <span class="text-sm bg-gray-200 text-gray-700 rounded-full px-3 py-1">Ticket</span>
+        <div class="mt-2 text-gray-700">
+          <p><strong>Ticket ID:</strong> {{ ticket.checkout_id }}</p>
+          <p><strong>User:</strong> {{ user.username }}</p>
+          <p><strong>Cinema:</strong> {{ ticket.cinema }}</p>
+          <p><strong>Showtime:</strong> {{ new Date(ticket.showtime).toLocaleString() }}</p>
+          <p><strong>Pay:</strong> {{ ticket.totalPrice }}</p>
+          <p><strong>Payment Method:</strong> {{ ticket.payment_method }}</p>
+          <p><strong>CVV:</strong> {{ ticket.CVV }}</p>
+          <p><strong>Last Updated:</strong> {{ new Date(ticket.updated_at).toLocaleString() }}</p>
+        </div>
+      </div>
     </div>
-
-    <div class="mt-2 text-gray-700">
-
-      <p><strong>Ticket ID:</strong> {{ ticket.checkout_id }}</p>
-      <p><strong>User:</strong> {{ user.username }}</p>
-
-      
-      <p><strong>Cinema:</strong> {{ ticket.cinema }}</p>
-      <p><strong>Showtime:</strong> {{ new Date(ticket.showtime).toLocaleString() }}</p>
-      <p><strong>Pay:</strong> {{ ticket.totalPrice }}</p>
-
-      <p><strong>Payment Method:</strong> {{ ticket.payment_method }}</p>
-      <p><strong>CVV:</strong> {{ ticket.CVV }}</p>
-      <p><strong>Last Updated:</strong> {{ new Date(ticket.updated_at).toLocaleString() }}</p>
+    <div v-else>
+      <p class="text-gray-300">No tickets purchased yet.</p>
     </div>
   </div>
-</div>
-<div v-else>
-  <p class="text-gray-600">No tickets purchased yet.</p>
-</div>
-
-
-
-
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -109,8 +99,7 @@ const GET_USER_TICKETS_QUERY = gql`
       payment_method
       CVV
       totalPrice
-     
-     updated_at
+      updated_at
     }
   }
 `;
@@ -182,10 +171,10 @@ onMounted(() => {
 
 <style scoped>
 .user-info {
-  background-color: #f9fafb;
+  background-color: #1f2937; /* gray-800 */
 }
 
 .ticket-info {
-  background-color: #edf2f7;
+  background-color: #edf2f7; /* you can adjust this color if needed */
 }
 </style>

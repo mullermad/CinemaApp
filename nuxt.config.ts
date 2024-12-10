@@ -2,6 +2,7 @@ import { defineNuxtConfig } from "nuxt/config";
 import path from "path";
 
 const __dirname = path.resolve();
+const ADMINSECRET = "your_admin_secret_here";
 
 export default defineNuxtConfig({
   target: "static",
@@ -22,8 +23,8 @@ export default defineNuxtConfig({
   apollo: {
     clients: {
       default: {
-        // httpEndpoint: "https://hasuraapp.hasura.app/v1/graphql",
-        httpEndpoint: "http://localhost:8080/v1/graphql",
+        httpEndpoint: "https://hasuraapp.hasura.app/v1/graphql",
+        // httpEndpoint: "http://localhost:8080/v1/graphql",
         autoImports: true,
         httpLinkOptions: {
           headers: {
@@ -31,6 +32,7 @@ export default defineNuxtConfig({
               ? `Bearer ${localStorage.getItem("authToken")}`
               : "",
             "Content-Type": "application/json",
+            "x-hasura-admin-secret": ADMINSECRET,
           },
         },
       },
@@ -48,4 +50,3 @@ export default defineNuxtConfig({
   },
   plugins: ["@/plugins/auth.ts"],
 });
-

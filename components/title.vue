@@ -61,6 +61,32 @@
           <p class="text-gray-400 leading-relaxed">
             {{ movie.description }}
           </p>
+
+          <!-- Get Tickets Button -->
+          <div class="flex space-x-4 mt-6">
+            <!-- <router-link :to="getTicketLink">
+    <button 
+      class="px-6 py-3 bg-red-400 rounded-lg font-semibold text-white hover:bg-red-500 transition duration-300"
+    >
+      Get Tickets
+    </button>
+  </router-link> -->
+ <!-- <router-link
+              v-for="movie in filteredMovies"
+              :key="movie.movie_id"
+              :to="getMovieLink(movie)"
+              class="relative block p-2 hover:scale-105 transition-transform duration-300 shadow-lg rounded-lg overflow-hidden"
+            >
+              <img :src="movie.poster_url[0]" :alt="movie.title" class="w-full h-auto object-cover" />
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                <h2 class="text-white text-lg font-semibold">{{ movie.title }}</h2>
+              </div>
+            </router-link> -->
+            <nuxt-link :to="getTicketLink(movie)" class="px-6 py-3 bg-red-400 rounded-lg font-semibold text-white hover:bg-red-500 transition duration-300">
+            Get Tickets
+          </nuxt-link>
+
+          </div>
         </div>
       </div>
 
@@ -114,12 +140,6 @@
         <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-1/3">
           <h2 class="text-2xl text-white mb-4">Rate {{ movie.title }}</h2>
           <StarRating :movieId="movie.movie_id" @rate="submitRating" @closeModal="closeRatingModal" />
-          <!-- <button @click="closeRatingModal" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg">
-            Submit Rating
-          </button> -->
-          <!-- <button @click="closeRatingModal" class="mt-2 px-4 py-2 bg-gray-600 text-white rounded-lg">
-            Cancel
-          </button> -->
         </div>
       </div>
     </transition>
@@ -148,6 +168,7 @@ const GET_MOVIE_BY_ID_QUERY = gql`
         name
       }
       stars
+      
     }
   }
 `;
@@ -164,6 +185,11 @@ const GET_AVERAGE_RATING_QUERY = gql`
   }
 `;
 
+// Add headers for authorization or other purposes
+// Retrieve token from localStorage
+const token = localStorage.getItem("authToken");
+
+
 const route = useRoute();
 const movie_id = route.query.movie_id || '';
 const movie = ref({
@@ -174,27 +200,54 @@ const movie = ref({
   duration: '',
   director: { name: '' },
   stars: '',
-  poster_url: []
+  poster_url: [],
+  schedules: []
 });
 
-const { result } = useQuery(
-  GET_MOVIE_BY_ID_QUERY,
-  { id: movie_id }
-);
+
+const { result } = useQuery(GET_MOVIE_BY_ID_QUERY, { id: movie_id }, {
+  context: {
+    headers: {
+      'Content-Type': 'application/json', // Specify content type if necessary
+      Authorization: token ? `Bearer ${token}` : '' // Include Authorization header if token exists
+    },
+  },
+});
+
+
+
+
 
 watch(result, (newResult) => {
   if (newResult?.movie?.[0]) {
     movie.value = newResult.movie[0];
+    console.log("Movie ID:", movie.value.movie_id); // Add this line
   }
 }, { immediate: true });
 
-const { result: ratingResult } = useQuery(GET_AVERAGE_RATING_QUERY, {
-  movie_id
+const { result: ratingResult } = useQuery(GET_AVERAGE_RATING_QUERY, { movie_id }, {
+  context: {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token ? `Bearer ${token}` : ''
+    },
+  },
 });
 
 const averageRating = computed(() => {
   return ratingResult.value?.rating_aggregate?.aggregate?.avg?.rating?.toFixed(1) || 'N/A';
 });
+
+
+
+
+const getTicketLink = (movie) => {
+  return {
+    path: '/teatorslist',
+    query: { movie_id: movie.movie_id }
+  };
+};
+
 
 const isRatingModalOpen = ref(false);
 
@@ -220,7 +273,3 @@ const submitRating = (rating) => {
   opacity: 0;
 }
 </style>
-
-
-
-

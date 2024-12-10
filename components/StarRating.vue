@@ -2,36 +2,24 @@
   <div class="max-w-md mx-auto p-6 border rounded-lg shadow-lg bg-white">
     <h2 class="text-xl font-semibold mb-4 text-gray-800">Rate this</h2>
     <div class="stars mb-6 flex items-center justify-center space-x-1">
-      <span
-        v-for="star in maxRating"
-        :key="star"
-        class="star"
-        :class="{ 'text-gold': star <= (hoverRating || rating) }"
-        @mouseover="hoverRating = star"
-        @mouseleave="hoverRating = 0"
-        @click="setRating(star)"
-      >
+      <span v-for="star in maxRating" :key="star" class="star" :class="{ 'text-gold': star <= (hoverRating || rating) }"
+        @mouseover="hoverRating = star" @mouseleave="hoverRating = 0" @click="setRating(star)">
         ★
       </span>
     </div>
     <p v-if="rating" class="text-center text-gray-600 mb-4">
       You selected a rating of: <span class="font-bold text-gray-800">{{ rating }}</span> out of {{ maxRating }}
     </p>
-    <button 
-      @click="submitRating" 
-      :disabled="!rating || loading"
-      class="w-full bg-blue-500 text-white py-2 rounded-lg transition duration-200 ease-in-out transform hover:bg-blue-600 hover:scale-105 disabled:bg-gray-400 disabled:hover:scale-100"
-    >
+    <button @click="submitRating" :disabled="!rating || loading"
+      class="w-full bg-blue-500 text-white py-2 rounded-lg transition duration-200 ease-in-out transform hover:bg-blue-600 hover:scale-105 disabled:bg-gray-400 disabled:hover:scale-100">
       Submit Rating
     </button>
-    <button 
-      @click="cancelRating" 
-      class="w-full mt-2 bg-gray-600 text-white py-2 rounded-lg transition duration-200 ease-in-out transform hover:bg-gray-700"
-    >
+    <button @click="cancelRating"
+      class="w-full mt-2 bg-gray-600 text-white py-2 rounded-lg transition duration-200 ease-in-out transform hover:bg-gray-700">
       Cancel
     </button>
     <p v-if="errorMessage" class="text-red-500 mt-4 text-center">{{ errorMessage }}</p>
-    <p v-if="successMessage" class="text-green-500 mt-4 text-center">{{ successMessage }}</p>
+    <p v-if="successMessage" class="sucess-message text-green-500 mt-4 text-center">{{ successMessage }}</p>
   </div>
 </template>
 
@@ -76,8 +64,15 @@ const { mutate: insertRating } = useMutation(INSERT_RATING, {
     },
   },
 });
+// const setRating = (value) => {
+//   rating.value = value;
+// };
 const setRating = (value) => {
-  rating.value = value;
+  if (value < 0 || value > maxRating) {
+    console.warn("Invalid rating value: ", value); // Optionally log the invalid attempt
+    return; // Prevent setting invalid ratings
+  }
+  rating.value = value; // Only set valid ratings
 };
 
 const submitRating = async () => {
@@ -114,11 +109,13 @@ const cancelRating = () => {
 .star {
   cursor: pointer;
   font-size: 1.5rem;
-  color: #ccc; /* Default star color */
+  color: #ccc;
+  /* Default star color */
   transition: color 0.2s ease-in-out;
 }
 
 .star.text-gold {
-  color: #FFD700; /* Golden color for selected or hovered stars */
+  color: #FFD700;
+  /* Golden color for selected or hovered stars */
 }
 </style>

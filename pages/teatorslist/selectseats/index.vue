@@ -14,35 +14,40 @@
       </div>
 
       <div class="flex justify-center items-center mb-6">
-        <input
-          type="number"
-          v-model="ticketQuantity"
-          min="1"
-          class="w-20 text-center rounded-lg border border-gray-600 p-2 text-gray-900"
-        />
+        <input type="number" data-cy="quantity-input" v-model="ticketQuantity" min="1" @input="validateQuantity"
+          class=" w-20 text-center rounded-lg border border-gray-600 p-2 text-gray-900" />
         <span class="ml-3 text-lg">Tickets</span>
       </div>
+
+      <!-- <div v-if="errorMessage" class="text-red-600 mb-4">{{ errorMessage }}</div>
+
+      <div class="text-xl text-gray-400">
+        Total Price: <span class="text-red-600">{{ totalPrice.toFixed(2) }}</span>
+      </div> -->
+
+      <!-- <div class="text-xl text-gray-400">
+        Total Price: <span class="text-red-600">{{ totalPrice.toFixed(2) }}</span>
+      </div>
+    </div> -->
+      <div v-if="errorMessage" class="error-message text-red-600 mb-4">{{ errorMessage }}</div>
 
       <div class="text-xl text-gray-400">
         Total Price: <span class="text-red-600">{{ totalPrice.toFixed(2) }}</span>
       </div>
     </div>
-
     <!-- Proceed Button -->
-    <div class="text-center mt-12">
-      <nuxt-link
-        :to="{
-          path: '/teatorslist/selectseats/checkout',
-          query: {
-            title: movieTitle,
-            theater: selectedTheater,
-            time: selectedTime,
-            ticketQuantity: ticketQuantity,
-            totalPrice: totalPrice.toFixed(2) // Ensure it's formatted as a string
-          }
-        }"
-        class="px-8 py-4 bg-red-600 text-white text-lg rounded-full hover:bg-red-700 transition duration-300"
-      >
+    <div class="text-center mt-12 v-if=" v-if="!errorMessage">
+      <nuxt-link :to="{
+        path: '/teatorslist/selectseats/checkout',
+        query: {
+          title: movieTitle,
+          theater: selectedTheater,
+          time: selectedTime,
+          ticketQuantity: ticketQuantity,
+          totalPrice: totalPrice.toFixed(2) // Ensure it's formatted as a string
+        }
+      }"
+        class="proceed-to-checkout px-8 py-4 bg-red-600 text-white text-lg rounded-full hover:bg-red-700 transition duration-300">
         Proceed to Checkout
       </nuxt-link>
     </div>
@@ -61,6 +66,7 @@ const selectedTheater = ref(route.query.theater || "Unknown Theater");
 const selectedTime = ref(route.query.time || "Unknown Time");
 const ticketPrice = 15.0;
 const ticketQuantity = ref(1); // Default ticket quantity
+const errorMessage = ref(''); // Error message for input validation
 
 // Function to format time
 const formatTime = (isoDate) => {
@@ -77,5 +83,14 @@ const formatTime = (isoDate) => {
 const formattedSelectedTime = computed(() => formatTime(selectedTime.value));
 
 // Compute total price based on quantity
-const totalPrice = computed(() => ticketQuantity.value * ticketPrice);
+// const totalPrice = computed(() => ticketQuantity.value * ticketPrice);
+const totalPrice = computed(() => Math.max(ticketQuantity.value * ticketPrice, 0));
+
+const validateQuantity = () => {
+  if (ticketQuantity.value < 1) {
+    errorMessage.value = 'Please enter a positive number of tickets.';
+  } else {
+    errorMessage.value = '';
+  }
+};
 </script>

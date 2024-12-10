@@ -1,8 +1,7 @@
-<!-- manage movie -->
 <template>
   <div class="flex min-h-screen bg-gray-900">
     <main class="flex-1 p-4 lg:ml-64">
-      <div class="p-4  rounded-lg border-gray-700 bg-gray-800 shadow-lg">
+      <div class="p-4 rounded-lg border-gray-700 bg-gray-800 shadow-lg">
         <h1 class="text-2xl font-bold mb-4 text-white">Add Movie</h1>
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Movie Title -->
@@ -14,76 +13,69 @@
           <!-- Description -->
           <div>
             <label class="block text-lg text-gray-300 mb-2">Description:</label>
-            <textarea v-model="movie.description" class="text-white w-full p-3 border  rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" rows="5" required></textarea>
+            <textarea v-model="movie.description" class="text-white w-full p-3 border rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" rows="5" required></textarea>
           </div>
 
-          <!-- Featured Image -->
-          <!-- <div>
-            <label class="block text-lg text-gray-300 mb-2">Featured Image:</label>
-            <input type="file" @change="handleFeaturedImageChange" class="text-white w-full p-3 border  rounded-lg border-gray-700" />
-          </div> -->
-<!-- Featured Images -->
-<div>
-  <label class="block text-lg text-gray-300 mb-2">Featured Images:</label>
-  <input type="file" @change="handleFeaturedImagesChange" multiple class="text-white w-full p-3 border rounded-lg border-gray-700" />
-</div>
+          <!-- Featured Images -->
+          <div>
+            <label class="block text-lg text-gray-300 mb-2">Featured Images:</label>
+            <input type="file" @change="handleFeaturedImagesChange" multiple class="text-white w-full p-3 border rounded-lg border-gray-700" />
+          </div>
 
           <!-- Director -->
-           <!-- Director -->
-  <div>
-    <label class="block text-lg text-gray-300 mb-2">Director:</label>
-    <select v-model="movie.director_id" class="text-white w-full p-3 border  rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required>
-      <option value="" disabled>Select a director</option>
-      <option v-for="director in directors" :key="director.id" :value="director.id">
-        {{ director.name }}
-      </option>
-    </select>
-  </div>
-         
+          <div>
+            <label class="block text-lg text-gray-300 mb-2">Director:</label>
+            <select v-model="movie.director_id" class="text-white w-full p-3 border rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required>
+              <option value="" disabled>Select a director</option>
+              <option v-for="director in directors" :key="director.id" :value="director.id">
+                {{ director.name }}
+              </option>
+            </select>
+          </div>
 
           <!-- Stars -->
           <div>
-            <label class="block text-lg text-gray-300 mb-2">Stars (enter star names):</label>
-            <div class="space-y-2">
-              <div class="flex items-center">
-                <input v-model="newStar" type="text" placeholder="Enter star name" class="text-white w-full p-3 border rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" />
-                <button type="button" @click="addStar" class="ml-2 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 focus:ring-4 focus:ring-blue-300">Add</button>
-              </div>
-
-              <div class="mt-2">
-                <ul>
-                  <li v-for="star in manuallyAddedStars" :key="star" class="text-gray-700 dark:text-gray-300">
-                    {{ star }}
-                  </li>
-                </ul>
-              </div>
+            <label class="block text-lg text-gray-300 mb-2">Stars:</label>
+            <select v-model="selectedStar" class="text-white w-full p-3 border rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500">
+              <option value="" disabled>Select a star</option>
+              <option v-for="star in stars" :key="star.star_id" :value="star.name">
+                {{ star.name }}
+              </option>
+            </select>
+            <button type="button" @click="addStar" class="mt-2 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 focus:ring-4 focus:ring-blue-300">Add Star</button>
+            <div class="mt-2">
+              <ul>
+                <li v-for="(star, index) in manuallyAddedStars" :key="index" class="text-gray-700 dark:text-gray-300">
+                  {{ star }}
+                </li>
+              </ul>
             </div>
           </div>
 
           <!-- Duration -->
           <div>
             <label class="block text-lg text-gray-300 mb-2">Duration (in minutes):</label>
-            <input v-model.number="movie.duration" type="number" min="0" class="text-white w-full p-3 border  rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required />
+            <input v-model.number="movie.duration" type="number" min="0" class="text-white w-full p-3 border rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required />
           </div>
 
-        
-               <!-- Genre -->
+          <!-- Genre -->
           <div>
             <label class="block text-lg text-gray-300 mb-2">Genre:</label>
-            <select v-model="movie.genre_name" class="text-white w-full p-3 border  rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required>
+            <select v-model="movie.genre_name" class="text-white w-full p-3 border rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required>
               <option value="" disabled>Select a genre</option>
               <option v-for="genre in genres" :key="genre" :value="genre">
                 {{ genre }}
               </option>
             </select>
           </div>
+
           <!-- Release Date -->
           <div>
             <label class="block text-lg text-gray-300 mb-2">Release Date:</label>
-            <input v-model="movie.release_date" type="date" class="text-white w-full p-3 border  rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required />
+            <input v-model="movie.release_date" type="date" class="text-white w-full p-3 border rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required />
           </div>
 
-            <!-- Schedules -->
+          <!-- Schedules -->
           <div>
             <label class="block text-lg text-gray-300 mb-2">Schedules:</label>
             <div v-for="(schedule, index) in movie.schedules" :key="index" class="mb-4">
@@ -94,7 +86,7 @@
                     {{ theatre }}
                   </option>
                 </select>
-                <input v-model="schedule.showtime" type="datetime-local" class="text-white w-full p-3 border  rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required />
+                <input v-model="schedule.showtime" type="datetime-local" class="text-white w-full p-3 border rounded-lg bg-gray-900 border-gray-700 focus:ring-2 focus:ring-blue-500" required />
                 <button type="button" @click="removeSchedule(index)" class="ml-2 bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 focus:ring-4 focus:ring-red-300">Remove</button>
               </div>
             </div>
@@ -113,20 +105,16 @@
 definePageMeta({
   layout: 'admin'
 })
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { gql } from 'graphql-tag';
-import { useMutation } from '@vue/apollo-composable';
+import { useMutation, useQuery } from '@vue/apollo-composable';
 const authStore = useAuthStore();
 const token = authStore.getToken();
 
- const userJson = localStorage.getItem("user");
-    const userData = userJson ? JSON.parse(userJson) : null;
-    const userRole = userData?.role;
-        const userId= userData?.user_id;
-
-
-    console.log("ppppppppppppppppppppp userRole",userRole);
-        console.log("ppppppppppppppppppppp userId",userId);
+const userJson = localStorage.getItem("user");
+const userData = userJson ? JSON.parse(userJson) : null;
+const userRole = userData?.role;
+const userId = userData?.user_id;
 
 // Define the mutation query
 const ADD_MOVIE_MUTATION = gql`
@@ -152,32 +140,9 @@ mutation AddMovie($input: movie_insert_input!) {
     }
   }
 }
-
 `;
 
-
-  // mutation AddMovie($input: movie_insert_input!) {
-  //   insert_movie_one(object: $input) {
-  //     movie_id
-  //     title
-  //     description
-  //     director {
-  //       name
-  //     }
-  //     duration
-  //     genre {
-  //       name
-  //     }
-  //     poster_url
-  //     stars
-  //     release_date
-  //      schedules {
-  //       Theatres
-  //       showtime
-  //     }
-  //   }
-  // }
-// Define the GraphQL queries and mutations
+// Define the GraphQL queries
 const GET_DIRECTORS_QUERY = gql`
   query GetDirectors {
     director {
@@ -187,7 +152,25 @@ const GET_DIRECTORS_QUERY = gql`
   }
 `;
 
-
+const GET_STARS_QUERY = gql`
+query GetStars {
+  star {
+    star_id
+    name
+    poster_url
+  }
+}
+`;
+const { mutate } = useMutation(ADD_MOVIE_MUTATION, {
+  context: {
+   headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+       
+        
+      },
+  },
+});
 // Define the list of theaters
 const theatres = [
   'Cineworld', 'Odeon', 'Vue', 'Empire', 'Regal', 'AMC'
@@ -198,10 +181,9 @@ const movie = ref({
   title: '',
   description: '',
   genre_name: '',
-  director_name: '',
-  stars: [],
+  director_id: '',
+  stars: '',
   duration: 0,
-  // poster_url: '',
   poster_url: [],  // Store multiple image URLs as an array
   release_date: '',
   schedules: [{ theatre: '', showtime: '' }]
@@ -215,10 +197,13 @@ const genres = [
   'Classic', 'Sci-Fi'
 ];
 
-// Use the useQuery hook to fetch directors
+// Use the useQuery hook to fetch directors and stars
 const { result, loading, error } = useQuery(GET_DIRECTORS_QUERY);
-
+const { result: starsResult } = useQuery(GET_STARS_QUERY);
 const directors = ref([]);
+const stars = ref([]);
+const manuallyAddedStars = ref([]);
+const selectedStar = ref('');
 
 // Watch for changes in the query result and update local state
 watch(
@@ -232,28 +217,20 @@ watch(
     }
   }
 );
-
-const manuallyAddedStars = ref([]);
-const newStar = ref('');
-
-// Add a star to the manuallyAddedStars array
-function addStar() {
-  const star = newStar.value.trim();
-  if (star && !manuallyAddedStars.value.includes(star)) {
-    manuallyAddedStars.value.push(star);
-    newStar.value = '';
+watch(
+  () => starsResult.value?.star,
+  (newStars) => {
+    if (newStars) {
+      stars.value = newStars.map(star => ({
+        star_id: star.star_id,
+        name: star.name,
+        poster_url: star.poster_url
+      }));
+    }
   }
-}
-function addSchedule() {
-  movie.value.schedules.push({ theatre: '', showtime: '' });
-}
+);
 
-function removeSchedule(index) {
-  movie.value.schedules.splice(index, 1);
-}
-
-
-
+// Function to handle file input change for featured images
 async function handleFeaturedImagesChange(event) {
   const files = Array.from(event.target.files);
   if (files.length > 0) {
@@ -298,19 +275,23 @@ async function uploadImageToCloudinary(file) {
   }
 }
 
-// // Initialize the mutation function
-// const { mutate } = useMutation(ADD_MOVIE_MUTATION);
-const { mutate } = useMutation(ADD_MOVIE_MUTATION, {
-  context: {
-   headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-       
-        
-      },
-  },
-});
+// Function to add selected star to the manuallyAddedStars array
+const addStar = () => {
+  if (selectedStar.value && !manuallyAddedStars.value.includes(selectedStar.value)) {
+    manuallyAddedStars.value.push(selectedStar.value);
+    selectedStar.value = ''; // Reset the selected star
+  }
+};
+function addSchedule() {
+  movie.value.schedules.push({ theatre: '', showtime: '' });
+}
 
+function removeSchedule(index) {
+  movie.value.schedules.splice(index, 1);
+}
+
+
+// Function to handle form submission
 async function handleSubmit() {
   const variables = {
     input: {
@@ -359,7 +340,32 @@ async function handleSubmit() {
   }
 }
 
+// const handleSubmit = async () => {
+//   // Join the manually added stars as a comma-separated string
+//   movie.value.stars = manuallyAddedStars.value.join(', ');
+
+//   // Call the mutation to add the movie
+//   await addMovie({
+//     variables: {
+//       input: {
+//         title: movie.value.title,
+//         description: movie.value.description,
+//         genre_name: movie.value.genre_name,
+//         director_id: movie.value.director_id,
+//         stars: movie.value.stars,
+//         duration: movie.value.duration,
+//         poster_url: movie.value.poster_url,
+//         release_date: movie.value.release_date,
+//         schedules: movie.value.schedules
+//       }
+//     }
+//   });
+// };
+
+// // Use the useMutation hook for adding the movie
+// const { mutate: addMovie } = useMutation(ADD_MOVIE_MUTATION);
 </script>
 
-
-
+<style scoped>
+/* Add your custom styles here */
+</style>
