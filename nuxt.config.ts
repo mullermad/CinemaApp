@@ -24,7 +24,6 @@ export default defineNuxtConfig({
     clients: {
       default: {
         httpEndpoint: "https://hasuraapp.hasura.app/v1/graphql",
-        // httpEndpoint: "http://localhost:8080/v1/graphql",
         autoImports: true,
         httpLinkOptions: {
           headers: {
