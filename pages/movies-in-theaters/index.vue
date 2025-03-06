@@ -62,10 +62,10 @@
       <div v-else class="movie-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-8">
         <router-link v-for="movie in filteredMovies" :key="movie.movie_id" :to="getMovieLink(movie)"
           class="movie-router-link relative block p-2 hover:scale-105 transition-transform duration-300 shadow-lg rounded-lg overflow-hidden bg-gray-900">
-          <img :src="movie.poster_url[0]" :alt="movie.title" class="w-full h-72 object-cover rounded-t-lg" />
+          <img :src="movie.poster_url" :alt="movie.title" class="w-full h-72 object-cover rounded-t-lg" />
           <div class="p-4">
             <h2 data-cy="movie-title-header" class=" text-white text-lg font-semibold">{{ movie.title
-              }}</h2>
+            }}</h2>
           </div>
         </router-link>
       </div>

@@ -227,7 +227,7 @@ const { result: starsResult } = useQuery(GET_STARS_QUERY, {
 });
 
 const stars = computed(() => starsResult.value?.star || []);
-
+console.log("starrrrrrrrrrrrrrrrr", stars.value)
 const getStarPoster = (starName) => {
   const star = stars.value.find(
     (s) => s.name.trim().toLowerCase() === starName.toLowerCase()

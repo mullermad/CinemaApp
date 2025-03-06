@@ -1,4 +1,3 @@
-
 import { defineNuxtRouteMiddleware, navigateTo } from "nuxt/app";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";

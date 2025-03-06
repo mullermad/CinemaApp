@@ -33,7 +33,7 @@
             <router-link data-cy="movie-display" v-for="movie in filteredMovies" :key="movie.movie_id"
               :to="getMovieLink(movie)"
               class="relative block p-2 hover:scale-105 transition-transform duration-300 shadow-lg rounded-lg overflow-hidden">
-              <img :src="movie.poster_url[0]" :alt="movie.title" class=" w-full h-auto object-cover" />
+              <img :src="movie.poster_url" :alt="movie.title" class=" w-full h-auto object-cover" />
               <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
                 <h2 class=" text-white text-lg font-semibold">
                   {{ movie.title }}
@@ -155,7 +155,7 @@ const totalPages = computed(() => Math.ceil(totalMovies.value / moviesPerPage));
 const filteredMovies = computed(() => {
   return movies.value;
 });
-
+console.log("filtered movies arebbbbbbbbbbbbb ", filteredMovies)
 // Function to refetch movies with the updated parameters
 const fetchMovies = () => {
   refetch({
